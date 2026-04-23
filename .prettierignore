@@ -1,0 +1,5 @@
+*.html
+*.css
+tasks/
+node_modules/
+
