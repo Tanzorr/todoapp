@@ -3,6 +3,12 @@ import { createTimer } from './timer.js';
 import { BUTTON_TEXT, DEFAULT_TIMER_VALUE } from './constants.js';
 import { deleteTodoItem, editTodoItem, toggleDoneStatus } from './actions.js';
 
+export const form = document.querySelector('.form');
+export const taskInput = form.querySelector('.input-task');
+export const editButton = document.querySelector('.edit-task-btn');
+
+
+
 export function createTaskItem(extraClasses, innerElements) {
     const taskItem = document.createElement('div');
     taskItem.classList.add(...extraClasses);
