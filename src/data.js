@@ -1,3 +1,3 @@
 // data.js
-export const taskStoreArray = [];
+export const taskStoreObject = {};
 export const taskItem = {};

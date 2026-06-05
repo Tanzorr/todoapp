@@ -1,21 +1,20 @@
-import { taskStoreArray } from './data.js';
-
-import { PROMPTS } from './constants.js';
+import { taskStoreObject } from './data.js';
 import { taskValidation } from './validations.js';
 import { renderTodoList } from './render.js';
-
-const addButton = document.querySelector('.add-task-btn');
+import { form, taskInput, editButton } from './dom-elements.js';
+import { saveAfterEditTodoItem, createTaskItem } from './actions.js';
 
 renderTodoList();
 
-addButton.onclick = addNewTodoToArray;
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
 
-function addNewTodoToArray() {
-    //Get input from a user using a prompt
-    const inputValue = window.prompt(PROMPTS.addTask);
-
-    if (taskValidation(inputValue, taskStoreArray)) {
-        taskStoreArray.push(inputValue);
+    if (taskValidation(taskInput.value, Object.values(taskStoreObject))) {
+        const taskItem = createTaskItem(taskInput.value);
+        taskStoreObject[taskItem.id] = taskItem;
         renderTodoList();
+        taskInput.value = '';
     }
-}
+});
+
+editButton.addEventListener('click', saveAfterEditTodoItem);

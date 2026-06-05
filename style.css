@@ -23,6 +23,27 @@
     padding: 20px 0;
 }
 
+.input{
+    width: 100%;
+    padding: 10px;
+    border: 1px solid black;
+    margin-bottom: 20px;
+    outline: none;
+    font-size: 18px;
+    border-radius: 5px;
+}
+
+.input:focus{
+    border: 1px solid gold;
+    box-shadow: 0 0 5px gold;
+}
+
+.input:hover{
+    border: 1px solid gold;
+    box-shadow: 0 0 5px gold;
+    cursor: pointer;
+}
+
 .items-container{
     display: flex;
     flex-direction: column;
@@ -61,5 +82,10 @@
 .done {
     text-decoration: line-through;
     color: gray;
+}
+
+.error {
+    color: red;
+    margin-bottom: 20px;
 }
 
