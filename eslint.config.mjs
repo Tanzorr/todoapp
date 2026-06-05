@@ -17,7 +17,7 @@ export default [
             // Catch real bugs
             'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
             'no-undef': 'error',
-            'eqeqeq': ['error', 'always'],
+            eqeqeq: ['error', 'always'],
             'no-var': 'error',
 
             // Style (non-formatting — Prettier owns formatting)
@@ -26,4 +26,3 @@ export default [
         },
     },
 ];
-

@@ -1,6 +1,6 @@
-import {taskItem, taskStoreObject} from './data.js';
-import {taskInput} from "./dom-elements.js";
-import {renderTodoList} from "./render.js";
+import { taskItem, taskStoreObject } from './data.js';
+import { taskInput } from './dom-elements.js';
+import { renderTodoList } from './render.js';
 
 export function deleteTodoItem(event) {
     const taskItem = event.target.closest('.task-item');
@@ -23,7 +23,6 @@ export function editTodoItem(event) {
     taskItem.id = domTaskItem.getAttribute('item-id');
 }
 
-
 export function saveAfterEditTodoItem() {
     taskStoreObject[taskItem.id].title = taskInput.value;
     renderTodoList();
@@ -40,12 +39,11 @@ export function toggleDoneStatus(event) {
     }
 }
 
-
 export function createTaskItem(taskTitle) {
     return {
         id: new Date().getTime(),
         title: taskTitle,
         isDone: false,
-        workingTime: 0
-    }
+        workingTime: 0,
+    };
 }

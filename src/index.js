@@ -1,12 +1,10 @@
-import {taskStoreArray, taskStoreObject} from './data.js';
-import {taskValidation} from './validations.js';
-import {renderTodoList} from './render.js';
-import {form, taskInput, editButton} from "./dom-elements.js";
-import { saveAfterEditTodoItem, createTaskItem} from "./actions.js";
-
+import { taskStoreObject } from './data.js';
+import { taskValidation } from './validations.js';
+import { renderTodoList } from './render.js';
+import { form, taskInput, editButton } from './dom-elements.js';
+import { saveAfterEditTodoItem, createTaskItem } from './actions.js';
 
 renderTodoList();
-
 
 form.addEventListener('submit', (e) => {
     e.preventDefault();

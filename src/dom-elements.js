@@ -7,8 +7,6 @@ export const form = document.querySelector('.form');
 export const taskInput = form.querySelector('.input-task');
 export const editButton = document.querySelector('.edit-task-btn');
 
-
-
 export function createTaskItem(extraClasses, innerElements) {
     const taskItem = document.createElement('div');
     taskItem.classList.add(...extraClasses);

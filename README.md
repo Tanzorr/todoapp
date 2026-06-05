@@ -1,12 +1,19 @@
 # Todo Time Tracker
+
 A vanilla JavaScript todo app with per-task time tracking.
+
 ## How to Run
+
 Open `index.html` in a browser. No build tools or server required.
+
 ## Tech Stack
+
 - **Vanilla JS** (ES modules, no bundler)
 - **HTML5 / CSS3** (no frameworks)
 - **No dependencies** — zero `node_modules`
+
 ## Project Structure
+
 ```
 ├── index.html          — Entry point, page layout
 ├── index.js            — Bootstrap: binds "add" button, orchestrates flow
@@ -22,7 +29,9 @@ Open `index.html` in a browser. No build tools or server required.
     ├── planned/        — Upcoming tasks
     └── done/           — Completed tasks
 ```
+
 ## Module Dependency Graph
+
 ```
 index.js
 ├── data.js
@@ -38,7 +47,9 @@ index.js
             ├── constants.js
             └── data.js
 ```
+
 ## Key Patterns
+
 - **Factory + closure** for timers — `createTimer()` returns an object with private state via closure
 - **DOM property storage** — `taskItem.stopTimer` holds a reference to the timer's `stop()` function for cleanup on delete
 - **Event delegation via `.closest()`** — button handlers find their parent `.task-item` via `event.target.closest()`
