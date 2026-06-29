@@ -12,6 +12,17 @@ export const BUTTON_TEXT = {
     pause: 'pause',
 };
 
+export const TASK_SHOW_LABELS = {
+    title: 'Task title',
+    time: 'Tracked time',
+    status: 'Status',
+};
+
+export const TASK_STATUS_TEXT = {
+    done: 'Done',
+    pending: 'In progress',
+};
+
 //messages
 export const PROMPTS = {
     addTask: 'Enter task title',
