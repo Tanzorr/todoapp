@@ -9,7 +9,9 @@ import {
 import { deleteTodoItem, editTodoItem, toggleDoneStatus } from './actions.js';
 
 export const form = document.querySelector('.form');
-export const taskInput = form?.querySelector('.input-task');
+export const title = form?.querySelector('.title');
+export const description = form?.querySelector('.description');
+
 
 export function createTaskItem(extraClasses, innerElements) {
     const taskItem = document.createElement('div');

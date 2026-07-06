@@ -23,7 +23,7 @@
     padding: 20px 0;
 }
 
-.input{
+.textarea,.input{
     width: 100%;
     padding: 10px;
     border: 1px solid black;
@@ -33,15 +33,24 @@
     border-radius: 5px;
 }
 
-.input:focus{
+.textarea,.input:focus{
     border: 1px solid gold;
     box-shadow: 0 0 5px gold;
 }
 
-.input:hover{
+.textarea,.input:hover{
     border: 1px solid gold;
     box-shadow: 0 0 5px gold;
     cursor: pointer;
+}
+
+.textarea{
+    height: 160px;
+}
+
+.form-field{
+    display: flex;
+    flex-direction: column;
 }
 
 .items-container{

@@ -29,10 +29,11 @@ export function toggleDoneStatus(event) {
      renderTodoList();
 }
 
-export function createTaskData(taskTitle) {
+export function createTaskData(title, description='') {
     return {
         id: new Date().getTime(),
-        title: taskTitle,
+        title: title,
+        description: description,
         isDone: false,
         workingTime: 0,
     };
