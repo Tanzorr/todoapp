@@ -23,6 +23,52 @@
     padding: 20px 0;
 }
 
+/* Form card (add / edit) - make add/edit pages match show card look */
+.form{
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px;
+    border: 1px solid #d9d9d9;
+    border-radius: 12px;
+    background: #fafafa;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form .form-field{
+    width: 100%;
+}
+
+.form .title.input{
+    font-size: 20px;
+    padding: 12px 14px;
+}
+
+.form .description.textarea{
+    min-height: 160px;
+    padding: 12px 14px;
+}
+
+.form .row{
+    justify-content: flex-end;
+}
+
+.add-task-btn, .save-task-btn{
+    background: black;
+    color: white;
+    padding: 12px 22px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.add-task-btn:hover, .save-task-btn:hover{
+    background: #222;
+}
+
 .textarea,.input{
     width: 100%;
     padding: 10px;
