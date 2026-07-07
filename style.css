@@ -56,10 +56,19 @@
 .items-container{
     display: flex;
     flex-direction: column;
+    gap: 12px;
+    align-items: center;
 }
 
+/* Make list items look like the show page card */
 .task-item {
-    padding: 14px 0;
+    width: 100%;
+    max-width: 720px;
+    padding: 18px 22px;
+    border: 1px solid #d9d9d9;
+    border-radius: 12px;
+    background: #fafafa;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .row{
