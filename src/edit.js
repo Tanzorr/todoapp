@@ -1,6 +1,7 @@
 //edit.js
 import {getTaskId, saveToStorage, taskStoreObject} from "./data.js";
 import {description, title} from "./dom-elements.js";
+import { initPageAction } from './action-button.js';
 
 const taskId = getTaskId();
 const task = taskStoreObject[taskId];
@@ -10,7 +11,7 @@ const saveButton = document.querySelector('.save-task-btn');
 
 if (task) {
     title.value = task.title;
-    description.value = task.description;
+    description.value = task.description ?? '';
 }
 
 saveButton.addEventListener('click', (event) => {
@@ -22,5 +23,7 @@ saveButton.addEventListener('click', (event) => {
 });
 
 
+// Initialize the floating action button behaviour (if present on the page)
+initPageAction();
 
 

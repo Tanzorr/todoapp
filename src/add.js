@@ -3,6 +3,7 @@ import {saveToStorage, taskStoreObject} from './data.js';
 import { taskValidation } from './validations.js';
 import { form, title,description } from './dom-elements.js';
 import { createTaskData } from './actions.js';
+import { initPageAction } from './action-button.js';
 
 
 form.addEventListener('submit', (e) => {
@@ -19,3 +20,6 @@ form.addEventListener('submit', (e) => {
     }
 });
 
+
+// Initialize the floating action button behaviour (if present on the page)
+initPageAction();
