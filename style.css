@@ -19,6 +19,16 @@
     margin-left: auto;
 }
 
+/* Header title (target only the header to avoid colliding with form inputs named "title") */
+header .title{
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 34px;
+    letter-spacing: 0.06em;
+    text-align: center;
+    margin: 0;
+    color: #fff;
+}
+
 .content{
     padding: 20px 0;
 }
@@ -164,14 +174,18 @@
 }
 
 .btn{
-    background: black;
-    color: white;
-    padding: 10px 20px;
+    background: #111;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    transition: transform 120ms ease, box-shadow 120ms ease, background 150ms ease;
 }
 
 .btn:hover{
-    background: #333;
-    color: gold;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.12);
 }
 
 .task-item {
@@ -182,6 +196,28 @@
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+/* Smaller control buttons inside task list */
+.task-controls .btn{
+    background: #111;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* Highlight delete button with a subtle warning color */
+.task-controls .btn:nth-child(3){
+    background: #222;
+    color: #f2c94c;
+}
+
+/* Task title in list */
+.task-tile{
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+    padding-left: 12px;
 }
 
 .done {
