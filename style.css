@@ -19,8 +19,105 @@
     margin-left: auto;
 }
 
+/* Header title (target only the header to avoid colliding with form inputs named "title") */
+header .title{
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 34px;
+    letter-spacing: 0.06em;
+    text-align: left;
+    margin: 0;
+    color: #fff;
+}
+
 .content{
     padding: 20px 0;
+}
+
+/* Form card (add / edit) - make add/edit pages match show card look */
+.form{
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px;
+    border: 1px solid #d9d9d9;
+    border-radius: 12px;
+    background: #fafafa;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form .form-field{
+    width: 100%;
+}
+
+.form .title.input{
+    font-size: 20px;
+    padding: 12px 14px;
+}
+
+.form .description.textarea{
+    min-height: 160px;
+    padding: 12px 14px;
+}
+
+.form .row{
+    justify-content: flex-end;
+}
+
+.add-task-btn, .save-task-btn{
+    background: black;
+    color: white;
+    padding: 12px 22px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.add-task-btn:hover, .save-task-btn:hover{
+    background: #222;
+}
+
+/* Breadcrumbs */
+.breadcrumbs{
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #666;
+}
+.breadcrumbs a{
+    color: #111;
+    text-decoration: none;
+    font-weight: 600;
+}
+.breadcrumbs span{
+    color: #666;
+}
+
+/* Floating page action button (consistent across pages) */
+.page-action-btn{
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    cursor: pointer;
+    z-index: 9999;
+}
+.page-action-btn:hover{
+    transform: translateY(-2px);
+}
+
+@media (max-width: 420px) {
+    .page-action-btn{
+        right: 16px;
+        bottom: 16px;
+        padding: 12px 16px;
+    }
 }
 
 .textarea,.input{
@@ -56,10 +153,19 @@
 .items-container{
     display: flex;
     flex-direction: column;
+    gap: 12px;
+    align-items: center;
 }
 
+/* Make list items look like the show page card */
 .task-item {
-    padding: 14px 0;
+    width: 100%;
+    max-width: 720px;
+    padding: 18px 22px;
+    border: 1px solid #d9d9d9;
+    border-radius: 12px;
+    background: #fafafa;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .row{
@@ -68,14 +174,18 @@
 }
 
 .btn{
-    background: black;
-    color: white;
-    padding: 10px 20px;
+    background: #111;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    transition: transform 120ms ease, box-shadow 120ms ease, background 150ms ease;
 }
 
 .btn:hover{
-    background: #333;
-    color: gold;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.12);
 }
 
 .task-item {
@@ -86,6 +196,28 @@
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+/* Smaller control buttons inside task list */
+.task-controls .btn{
+    background: #111;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* Highlight delete button with a subtle warning color */
+.task-controls .btn:nth-child(3){
+    background: #222;
+    color: #f2c94c;
+}
+
+/* Task title in list */
+.task-tile{
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+    padding-left: 12px;
 }
 
 .done {
