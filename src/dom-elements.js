@@ -86,7 +86,7 @@ function createTaskShowField(labelText, valueText, valueClasses = []) {
     return field;
 }
 
-export function taskShowDomElement(taskTitle, taskTime, taskStatus) {
+export function taskShowDomElement(taskTitle, taskTime, taskStatus, taskDescription = '') {
     const container = document.createElement('div');
     container.classList.add('task-show');
 
@@ -96,7 +96,8 @@ export function taskShowDomElement(taskTitle, taskTime, taskStatus) {
     container.append(
         createTaskShowField(TASK_SHOW_LABELS.title, taskTitle, ['task-show-value-title']),
         createTaskShowField(TASK_SHOW_LABELS.time, `${taskTime}s`, ['task-show-value-time']),
-        createTaskShowField(TASK_SHOW_LABELS.status, statusText, ['task-show-value-status', statusClass])
+        createTaskShowField(TASK_SHOW_LABELS.status, statusText, ['task-show-value-status', statusClass]),
+        createTaskShowField(TASK_SHOW_LABELS.description, taskDescription || '—', ['task-show-value-description'])
     );
 
     return container;

@@ -16,6 +16,7 @@ export const TASK_SHOW_LABELS = {
     title: 'Task title',
     time: 'Tracked time',
     status: 'Status',
+    description: 'Description',
 };
 
 export const TASK_STATUS_TEXT = {
