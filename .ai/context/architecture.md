@@ -128,3 +128,10 @@ untouched), and imports nothing from `src/`. Cost: the headings and columns name
 in `docs/config.js` become a contract — renaming one breaks that section, which
 then shows an error; inline markdown beyond bold, italic, code and links renders
 as text.
+
+### ADR-011 — Docs sections are hash views of one page, not one file each
+**2026-10-29 · Accepted** (TASK-018). Every section renders on load and only one
+is shown; `#<id>` picks it. Rejected: one `.html` per section — each would fetch
+every file again to resolve references to other sections' cards, and
+`markMissingRefs` could not see them. Cost: the first view waits for all files;
+search and list page reset on reload.

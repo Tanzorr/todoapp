@@ -1,11 +1,15 @@
-// main.js — page entry: fetch the `.ai/` files, render each section, then resolve references.
+// main.js — page entry: fetch the `.ai/` files, render each section, resolve references, then
+// show the section the URL hash names.
+import { browse } from './browse.js';
 import { DOCS } from './config.js';
 import { el, errorNode, fileLink, markMissingRefs } from './dom.js';
 import { toLines } from './md-blocks.js';
 import { RENDERERS } from './sections.js';
 
 const ROOT = new URL(DOCS.root, window.location.href);
+const TITLE = document.title;
 const files = new Map();
+const reveals = new Map();
 
 async function fetchLines(url) {
     const res = await fetch(url, { cache: 'no-store' });
@@ -31,6 +35,7 @@ function sectionShell(section) {
     );
     const node = el('section', 'docs-section', head, body);
     node.id = section.id;
+    node.hidden = true;
     return { node, body };
 }
 
@@ -43,9 +48,33 @@ function navLink(section) {
 async function renderSection(section, body) {
     try {
         body.append(await RENDERERS[section.kind](section, load));
+        reveals.set(section.id, browse(body, { pageSize: DOCS.pageSize, label: section.title }));
     } catch (err) {
         body.append(errorNode(err.message));
     }
+}
+
+// One section shows at a time. The hash names a section, or a card — then the card's section
+// shows, at the list page holding the card; either is scrolled to, as the browser would for a
+// visible element. Anything else shows the first section from the top.
+function route(nav, content) {
+    const id = window.location.hash.slice(1);
+    const target = id ? document.getElementById(id) : null;
+    const shown = target?.closest('.docs-section') ?? content.firstElementChild;
+    if (!shown) return;
+    for (const section of content.children) section.hidden = section !== shown;
+    for (const link of nav.children) {
+        if (link.getAttribute('href') === `#${shown.id}`) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+    }
+    const section = DOCS.sections.find((candidate) => candidate.id === shown.id);
+    document.title = `${section.title} · ${TITLE}`;
+    if (!target) {
+        window.scrollTo(0, 0);
+        return;
+    }
+    if (target !== shown) reveals.get(shown.id)?.(target);
+    target.scrollIntoView();
 }
 
 function main() {
@@ -58,12 +87,13 @@ function main() {
         content.append(node);
         return renderSection(section, body);
     });
+    const show = () => route(nav, content);
+    window.addEventListener('hashchange', show);
+    show();
     Promise.all(rendered).then(() => {
         markMissingRefs(content);
         status.textContent = `Read ${files.size} files at ${new Date().toLocaleTimeString()}.`;
-        const target =
-            window.location.hash && document.getElementById(window.location.hash.slice(1));
-        if (target) target.scrollIntoView();
+        show();
     });
 }
 

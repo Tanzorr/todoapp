@@ -64,6 +64,11 @@
     box-sizing: border-box;
 }
 
+/* Sections, list items and pagers are toggled with `hidden`; it must beat their `display`. */
+[hidden] {
+    display: none !important;
+}
+
 body {
     margin: 0;
     background: var(--bg);
@@ -195,6 +200,12 @@ pre code {
 
 .docs-nav a:hover {
     background: color-mix(in srgb, var(--tone) 22%, transparent);
+}
+
+.docs-nav a[aria-current='page'] {
+    border-color: var(--tone);
+    background: var(--tone);
+    color: var(--bg);
 }
 
 .docs-content {
@@ -552,6 +563,75 @@ a.ref.ref-missing {
 .status-group .count {
     background: color-mix(in srgb, var(--status) 18%, transparent);
     color: var(--status);
+}
+
+/* ── Search and list pages (browse.js) ── */
+.search {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    align-items: center;
+    margin: 18px 0 4px;
+}
+
+.search-input {
+    flex: 1 1 260px;
+    max-width: 420px;
+    padding: 8px 14px;
+    border: 1px solid color-mix(in srgb, var(--tone) 35%, var(--border));
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+}
+
+.search-input:focus {
+    outline: 2px solid var(--tone);
+    outline-offset: 1px;
+}
+
+.search-count,
+.pager-range {
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+.pager {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.pager-button {
+    min-width: 34px;
+    padding: 4px 10px;
+    border: 1px solid color-mix(in srgb, var(--tone) 35%, var(--border));
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--tone);
+    font: 700 0.82rem var(--mono);
+    cursor: pointer;
+}
+
+.pager-button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--tone) 15%, var(--surface));
+}
+
+.pager-button[aria-current='page'] {
+    border-color: var(--tone);
+    background: var(--tone);
+    color: var(--bg);
+}
+
+.pager-button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.pager-range {
+    margin-left: 6px;
 }
 
 /* ── Endpoints ── */

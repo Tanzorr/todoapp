@@ -1,10 +1,13 @@
 // config.js — the one map from `.ai/` files to page sections. Paths are relative to `root`;
-// `parts` name the headings a section reads, matched without their numbering.
+// `parts` name the headings a section reads, matched without their numbering. Each section is
+// its own page at `#<id>`; a list longer than `pageSize` is paged, and a section with more
+// items than that gets a search box.
 
 export const DOCS = {
     root: '../.ai/',
     refPattern: /\b(?:[VISQ]-\d+|TASK-\d{3}|ADR-\d{3})\b/,
     statusOrder: ['in-progress', 'blocked', 'planned', 'done'],
+    pageSize: 6,
     sections: [
         {
             id: 'value',

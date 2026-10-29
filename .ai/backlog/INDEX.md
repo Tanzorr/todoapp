@@ -16,6 +16,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
 | [TASK-015](TASK-015-one-title-rule.md) | One title-length rule on both sides | `planned` | P2 | V-3 | TASK-009 |
 | [TASK-016](TASK-016-readme-current.md) | Root README describes the current app | `planned` | P3 | V-4 | TASK-009 |
 | [TASK-017](TASK-017-docs-page.md) | One docs page rendered from `.ai/` | `in-progress` | P2 | V-4, V-5 | — |
+| [TASK-018](TASK-018-docs-pages-search.md) | Docs: one page per section, search and pages for long lists | `in-progress` | P2 | V-4, V-5 | TASK-017 |
 
 ## Order
 
@@ -26,7 +27,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
      │        └─► 016
      └─► 014
 013  (independent, do first)
-017  (independent)
+017 ───► 018
 ```
 
 ## Conventions

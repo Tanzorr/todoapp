@@ -33,8 +33,8 @@ Per-file backend specs stay in [`../backend/specs/`](../backend/specs/README.md)
 this layer links to them rather than repeating them.
 [`../CLAUDE.md`](../CLAUDE.md) is the entry point.
 
-**Read it as one page:** [`../docs/index.html`](../docs/index.html) renders this
-layer from the files on each load — serve the root as in
+**Read it in the browser:** [`../docs/index.html`](../docs/index.html) renders this
+layer, a page per section, from the files on each load — serve the root as in
 [`context/stack.md`](context/stack.md), then open `/docs/`.
 
 ## Traceability
