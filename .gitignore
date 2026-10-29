@@ -12,6 +12,9 @@ Thumbs.db
 node_modules/
 tasks/
 
+# Secrets (I-9)
+.env
+
 
 # Logs
 *.log
