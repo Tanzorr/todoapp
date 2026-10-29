@@ -1,32 +1,55 @@
 //timer.js
 import { BUTTON_TEXT } from './constants.js';
-import {getTaskById, saveToStorage, taskStoreObject} from "./data.js";
+import { startTimer, stopTimer, getTimerTotal } from './api-client.js';
 
-export function createTimer(taskId) {
-    let counter = getTaskById(taskId)?.workingTime ?? 0;
+export function createTimer(taskId, initialSeconds = 0, initiallyRunning = false) {
+    let counter = initialSeconds;
     let isRunning = false;
     let intervalId = null;
+
+    function startDisplay(timerButton) {
+        isRunning = true;
+        intervalId = setInterval(() => {
+            counter += 1;
+            timerButton.textContent = `${counter} s`;
+        }, 1000);
+    }
 
     function stop() {
         clearInterval(intervalId);
         isRunning = false;
     }
 
-    function handleTimer(timerButton, controlButton) {
+    async function handleTimer(timerButton, controlButton) {
         if (isRunning) {
             stop();
             controlButton.textContent = BUTTON_TEXT.start;
-        } else {
-            isRunning = true;
-            intervalId = setInterval(() => {
-                counter += 1;
+            try {
+                await stopTimer(taskId);
+                const total = await getTimerTotal(taskId);
+                counter = total.totalSeconds;
                 timerButton.textContent = `${counter} s`;
-                taskStoreObject[taskId].workingTime = counter;
-                saveToStorage();
-            }, 1000);
-            controlButton.textContent = BUTTON_TEXT.pause;
+            } catch (err) {
+                alert(err.message);
+            }
+        } else {
+            try {
+                await startTimer(taskId);
+                startDisplay(timerButton);
+                controlButton.textContent = BUTTON_TEXT.pause;
+            } catch (err) {
+                alert(err.message);
+            }
         }
     }
 
-    return { handleTimer, stop };
+    // If timer was already running when page loaded, start local display
+    if (initiallyRunning) {
+        // delay to allow timerButton reference to exist — started by createControls
+        setTimeout(() => {
+            isRunning = true;
+        }, 0);
+    }
+
+    return { handleTimer, stop, isRunning: () => isRunning };
 }

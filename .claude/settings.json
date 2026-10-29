@@ -1,0 +1,107 @@
+{
+    "$schema": "https://json.schemastore.org/claude-code-settings.json",
+    "permissions": {
+        "defaultMode": "default",
+
+        "allow": [
+            "Read",
+            "Glob",
+            "Grep",
+
+            "Bash(rg:*)",
+            "Bash(find:*)",
+            "Bash(jq:*)",
+            "Bash(ls:*)",
+            "Bash(tree:*)",
+            "Bash(wc:*)",
+            "Bash(file:*)",
+            "Bash(stat:*)",
+            "Bash(du:*)",
+
+            "Bash(git status:*)",
+            "Bash(git log:*)",
+            "Bash(git diff:*)",
+            "Bash(git show:*)",
+            "Bash(git branch:*)",
+            "Bash(git blame:*)",
+            "Bash(git grep:*)",
+            "Bash(git ls-files:*)",
+            "Bash(git check-ignore:*)",
+
+            "Bash(npm run lint)",
+            "Bash(npm run check)",
+            "Bash(npx eslint:*)",
+            "Bash(npx prettier --check:*)",
+            "Bash(node --check:*)",
+            "Bash(node --version)",
+            "Bash(npm ls:*)",
+
+            "Bash(curl -s localhost:3000/health)",
+            "Bash(curl -s localhost:3000/api/tasks)"
+        ],
+
+        "ask": [
+            "Bash(npm install:*)",
+            "Bash(npm ci:*)",
+            "Bash(npm uninstall:*)",
+            "Bash(npm update:*)",
+            "Bash(npm run format:*)",
+            "Bash(npm run lint:fix:*)",
+            "Bash(npx prettier --write:*)",
+            "Bash(npm run migrate:*)",
+            "Bash(npm start:*)",
+            "Bash(node src/server.js:*)",
+            "Bash(python3 -m http.server:*)",
+            "Bash(mysql:*)",
+            "Bash(curl:*)",
+
+            "Bash(git add:*)",
+            "Bash(git commit:*)",
+            "Bash(git push:*)",
+            "Bash(git reset:*)",
+            "Bash(git checkout:*)",
+            "Bash(git switch:*)",
+            "Bash(git rebase:*)",
+            "Bash(git stash:*)",
+            "Bash(git rm:*)",
+            "Bash(git mv:*)",
+
+            "Edit(./package.json)",
+            "Edit(./package-lock.json)",
+            "Edit(./backend/package.json)",
+            "Edit(./backend/package-lock.json)",
+            "Edit(./backend/.env.example)",
+            "Edit(./.gitignore)",
+            "Edit(./eslint.config.mjs)",
+            "Edit(./.claude/settings.json)"
+        ],
+
+        "deny": [
+            "Read(./.env)",
+            "Read(./.env.*)",
+            "Read(./backend/.env)",
+            "Read(./**/*.key)",
+            "Read(./**/*.pem)",
+            "Read(./**/id_rsa*)",
+            "Read(~/.ssh/**)",
+            "Read(~/.aws/**)",
+
+            "Edit(./.env)",
+            "Edit(./backend/.env)",
+            "Edit(./node_modules/**)",
+            "Edit(./backend/node_modules/**)",
+
+            "Bash(cat .env)",
+            "Bash(cat backend/.env)",
+            "Bash(cat ./backend/.env)",
+            "Bash(git show *:backend/.env)",
+            "Bash(rm -rf:*)",
+            "Bash(git push --force:*)",
+            "Bash(git push -f:*)",
+            "Bash(git clean:*)",
+            "Bash(mysql * -e *DROP*)",
+            "Bash(mysql * -e *TRUNCATE*)",
+            "Bash(chmod 777:*)"
+        ]
+    }
+}

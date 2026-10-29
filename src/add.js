@@ -1,25 +1,19 @@
 //add.js
-import {saveToStorage, taskStoreObject} from './data.js';
 import { taskValidation } from './validations.js';
-import { form, title,description } from './dom-elements.js';
-import { createTaskData } from './actions.js';
+import { form, title, description } from './dom-elements.js';
+import { createTask } from './api-client.js';
 import { initPageAction } from './action-button.js';
 
-
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    const existingTitles = Object.values(taskStoreObject).map((task) => task.title);
-    if (taskValidation(title?.value, existingTitles)) {
-        const taskItem = createTaskData(title.value, description.value);
-        taskStoreObject[taskItem.id] = taskItem;
-        title.value = '';
-        description.value = ''
-        saveToStorage();
-        window.location.href = 'index.html';
+    if (taskValidation(title?.value, [])) {
+        try {
+            await createTask(title.value, description.value);
+            window.location.href = 'index.html';
+        } catch (err) {
+            alert(err.message);
+        }
     }
 });
 
-
-// Initialize the floating action button behaviour (if present on the page)
 initPageAction();

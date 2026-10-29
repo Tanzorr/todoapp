@@ -1,19 +1,25 @@
 //show.js
-import {getTaskId, taskStoreObject} from "./data.js";
-import {taskShowDomElement} from "./dom-elements.js";
+import { getTaskId } from './data.js';
+import { getTask, getTimerTotal } from './api-client.js';
+import { taskShowDomElement } from './dom-elements.js';
 import { initPageAction } from './action-button.js';
 
 const taskId = getTaskId();
-const task = taskStoreObject[taskId];
 
-if (task) {
-    const taskTitleDomElement = taskShowDomElement(task.title, task.workingTime, task.isDone, task.description)
-    document.querySelector('.content').append(taskTitleDomElement);
-} else {
-    console.error('Task not found');
+if (taskId) {
+    const [task, timerData] = await Promise.all([getTask(taskId), getTimerTotal(taskId)]);
+
+    if (task) {
+        const element = taskShowDomElement(
+            task.title,
+            timerData.totalSeconds,
+            task.done,
+            task.description ?? ''
+        );
+        document.querySelector('.content').append(element);
+    } else {
+        console.error('Task not found');
+    }
 }
 
-// Wire the floating action button (edit navigation)
 initPageAction();
-
-

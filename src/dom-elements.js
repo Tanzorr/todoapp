@@ -41,8 +41,8 @@ export function createTitle(text) {
     return div;
 }
 
-export function createControls(taskId, workingTime = 0) {
-    const { handleTimer, stop } = createTimer(taskId);
+export function createControls(taskId, workingTime = 0, isRunning = false) {
+    const { handleTimer, stop } = createTimer(taskId, workingTime, isRunning);
     const container = document.createElement('div');
     container.classList.add('task-controls');
 
@@ -51,10 +51,10 @@ export function createControls(taskId, workingTime = 0) {
     const deleteButton = createButton(BUTTON_TEXT.delete, deleteTodoItem);
 
     const timerButton = createButton(`${workingTime ?? DEFAULT_TIMER_VALUE}s`);
-
-    const controlButton = createButton(BUTTON_TEXT.start, () => {
-        handleTimer(timerButton, controlButton);
-    });
+    const controlButton = createButton(
+        isRunning ? BUTTON_TEXT.pause : BUTTON_TEXT.start,
+        () => { handleTimer(timerButton, controlButton); }
+    );
 
     container.append(editButton, doneButton, deleteButton, controlButton, timerButton);
 
