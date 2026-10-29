@@ -1,15 +1,16 @@
-import {deleteItemFromStorage, saveTaskId, saveToStorage, taskItem, taskStoreObject} from './data.js';
-import {renderTodoList} from "./render.js";
+import { saveTaskId } from './data.js';
+import { deleteTask, updateTask } from './api-client.js';
 
-
-export function deleteTodoItem(event) {
-    const taskItem = event.target.closest('.task-item');
-    if (taskItem) {
-        const itemId = taskItem.getAttribute('item-id');
-        deleteItemFromStorage(itemId);
-        taskItem.stopTimer?.()
-        taskItem.remove();
-        taskItem.stopTimer();
+export async function deleteTodoItem(event) {
+    const taskItemEl = event.target.closest('.task-item');
+    if (!taskItemEl) return;
+    const itemId = taskItemEl.getAttribute('item-id');
+    taskItemEl.stopTimer?.();
+    try {
+        await deleteTask(itemId);
+        taskItemEl.remove();
+    } catch (err) {
+        alert(err.message);
     }
 }
 
@@ -20,21 +21,16 @@ export function editTodoItem(event) {
     window.location.href = './edit.html';
 }
 
-export function toggleDoneStatus(event) {
-     const taskItem = event.target.closest('.task-item');
-     const taskId = taskItem.getAttribute('item-id');
-     taskStoreObject[taskId].isDone = !taskStoreObject[taskId].isDone;
-     taskItem.stopTimer();
-     saveToStorage();
-     renderTodoList();
-}
-
-export function createTaskData(title, description='') {
-    return {
-        id: new Date().getTime(),
-        title: title,
-        description: description,
-        isDone: false,
-        workingTime: 0,
-    };
+export async function toggleDoneStatus(event) {
+    const taskItemEl = event.target.closest('.task-item');
+    const taskId = taskItemEl.getAttribute('item-id');
+    const titleEl = taskItemEl.querySelector('.task-tile');
+    const nowDone = !titleEl.classList.contains('done');
+    try {
+        await updateTask(taskId, { done: nowDone });
+        taskItemEl.stopTimer?.();
+        titleEl.classList.toggle('done', nowDone);
+    } catch (err) {
+        alert(err.message);
+    }
 }

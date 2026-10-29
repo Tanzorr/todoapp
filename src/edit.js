@@ -1,29 +1,27 @@
 //edit.js
-import {getTaskId, saveToStorage, taskStoreObject} from "./data.js";
-import {description, title} from "./dom-elements.js";
+import { getTaskId } from './data.js';
+import { description, title } from './dom-elements.js';
+import { getTask, updateTask } from './api-client.js';
 import { initPageAction } from './action-button.js';
 
 const taskId = getTaskId();
-const task = taskStoreObject[taskId];
-// const editTitleInput = document.querySelector('.input-task'); we don't need this because we already have title and description imported from dom-elements.js
-// const editDescriptionInput = document.querySelector('.input-description');
 const saveButton = document.querySelector('.save-task-btn');
+
+const task = taskId ? await getTask(taskId) : null;
 
 if (task) {
     title.value = task.title;
     description.value = task.description ?? '';
 }
 
-saveButton.addEventListener('click', (event) => {
+saveButton.addEventListener('click', async (event) => {
     event.preventDefault();
-    task.title = title.value;
-    task.description = description.value;
-    saveToStorage();
-    window.location.href = 'index.html';
+    try {
+        await updateTask(taskId, { title: title.value, description: description.value });
+        window.location.href = 'index.html';
+    } catch (err) {
+        alert(err.message);
+    }
 });
 
-
-// Initialize the floating action button behaviour (if present on the page)
 initPageAction();
-
-
