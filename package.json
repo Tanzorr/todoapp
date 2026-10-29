@@ -5,10 +5,10 @@
     "main": "src/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "lint": "eslint src/*.js eslint.config.mjs",
-        "lint:fix": "eslint src/*.js eslint.config.mjs --fix",
-        "format": "prettier --write src/*.js eslint.config.mjs README.md index.html style.css package.json",
-        "check": "npm run lint && prettier --check src/*.js eslint.config.mjs README.md index.html style.css package.json"
+        "lint": "eslint src/*.js docs/*.js eslint.config.mjs",
+        "lint:fix": "eslint src/*.js docs/*.js eslint.config.mjs --fix",
+        "format": "prettier --write src/*.js docs/*.js eslint.config.mjs README.md index.html style.css package.json",
+        "check": "npm run lint && prettier --check src/*.js docs/*.js eslint.config.mjs README.md index.html style.css package.json"
     },
     "keywords": [],
     "author": "",

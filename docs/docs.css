@@ -1,0 +1,690 @@
+:root {
+    color-scheme: light dark;
+    --bg: #eef1f6;
+    --surface: #ffffff;
+    --sunken: #e6eaf1;
+    --text: #11141a;
+    --muted: #4a5363;
+    --border: #cdd4df;
+    --accent: #1f5bd1;
+    --warn: #8a5300;
+    --warn-bg: #fff3dc;
+    --error: #b42318;
+    --error-bg: #fdecea;
+    --get: #1a7f37;
+    --post: #1f5bd1;
+    --put: #9a6700;
+    --patch: #7c4dce;
+    --delete: #c62828;
+    /* One tone per section; refs to a section's ids share its tone. */
+    --c-value: #a15c00;
+    --c-criteria: #4d7c0f;
+    --c-ontology: #6d3fd1;
+    --c-question: #c2410c;
+    --c-backlog: #1f5bd1;
+    --c-archive: #0b7f6b;
+    --c-conventions: #b3236d;
+    --c-endpoints: #1a7f37;
+    --c-architecture: #0a6f99;
+    --mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    --radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #0b0e14;
+        --surface: #151a24;
+        --sunken: #1f2635;
+        --text: #f0f3f8;
+        --muted: #a9b3c4;
+        --border: #2e3747;
+        --accent: #7cabff;
+        --warn: #f2b84b;
+        --warn-bg: #2a2110;
+        --error: #ff8a80;
+        --error-bg: #2c1515;
+        --get: #5fd47f;
+        --post: #7cabff;
+        --put: #f5c542;
+        --patch: #b79cff;
+        --delete: #ff7b72;
+        --c-value: #f5b942;
+        --c-criteria: #a3e05f;
+        --c-ontology: #b79cff;
+        --c-question: #ff9e64;
+        --c-backlog: #7cabff;
+        --c-archive: #3fd8b8;
+        --c-conventions: #ff8fc7;
+        --c-endpoints: #5fd47f;
+        --c-architecture: #5cc8f0;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.55 system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* Backdrop fixed to the viewport, so it stays while scrolling: a dot grid over three glows. */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(circle, color-mix(in srgb, var(--text) 8%, transparent) 1px, transparent 1.5px)
+            0 0 / 22px 22px,
+        radial-gradient(
+            800px 520px at 0% 0%,
+            color-mix(in srgb, var(--c-ontology) 22%, transparent),
+            transparent 70%
+        ),
+        radial-gradient(
+            700px 520px at 100% 35%,
+            color-mix(in srgb, var(--c-archive) 16%, transparent),
+            transparent 70%
+        ),
+        radial-gradient(
+            900px 480px at 35% 100%,
+            color-mix(in srgb, var(--c-conventions) 14%, transparent),
+            transparent 70%
+        );
+}
+
+a {
+    color: var(--accent);
+}
+
+code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--sunken);
+    padding: 1px 5px;
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+}
+
+pre {
+    margin: 0 0 12px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid color-mix(in srgb, var(--tone, var(--accent)) 25%, var(--border));
+    border-left: 3px solid var(--tone, var(--accent));
+    border-radius: var(--radius);
+    font: 0.8rem/1.5 var(--mono);
+}
+
+pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    overflow-wrap: normal;
+}
+
+/* ── Page frame ── */
+.docs-header,
+.docs-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.docs-header {
+    padding-top: 32px;
+    padding-bottom: 12px;
+}
+
+.docs-header h1 {
+    width: fit-content;
+    margin: 0 0 4px;
+    font-size: 1.9rem;
+    background: linear-gradient(
+        90deg,
+        var(--c-backlog),
+        var(--c-ontology) 45%,
+        var(--c-conventions) 75%,
+        var(--c-value)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.docs-lead,
+.docs-status,
+.muted {
+    margin: 0;
+    color: var(--muted);
+}
+
+.docs-status {
+    font-size: 0.82rem;
+}
+
+.docs-nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 10px max(16px, calc((100% - 1200px) / 2 + 16px));
+    background: color-mix(in srgb, var(--bg) 70%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+}
+
+.docs-nav a {
+    padding: 5px 14px;
+    border: 1px solid color-mix(in srgb, var(--tone) 45%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--tone) 8%, transparent);
+    color: var(--tone);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.docs-nav a:hover {
+    background: color-mix(in srgb, var(--tone) 22%, transparent);
+}
+
+.docs-content {
+    padding-bottom: 64px;
+}
+
+.docs-section {
+    position: relative;
+    padding-top: 36px;
+    scroll-margin-top: 52px;
+}
+
+/* A glow in the section's tone behind its heading; it fades out before its own edges. */
+.docs-section::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -80px;
+    z-index: -1;
+    width: min(680px, 80vw);
+    height: 280px;
+    pointer-events: none;
+    background: radial-gradient(
+        closest-side,
+        color-mix(in srgb, var(--tone) 20%, transparent),
+        transparent
+    );
+}
+
+/* Section tones, keyed by the section ids in config.js; a new section falls back to the accent. */
+.docs-section,
+.docs-nav a {
+    --tone: var(--accent);
+}
+
+#value,
+.docs-nav a[href='#value'] {
+    --tone: var(--c-value);
+}
+
+#ontology,
+.docs-nav a[href='#ontology'] {
+    --tone: var(--c-ontology);
+}
+
+#backlog,
+.docs-nav a[href='#backlog'] {
+    --tone: var(--c-backlog);
+}
+
+#archive,
+.docs-nav a[href='#archive'] {
+    --tone: var(--c-archive);
+}
+
+#conventions,
+.docs-nav a[href='#conventions'] {
+    --tone: var(--c-conventions);
+}
+
+#endpoints,
+.docs-nav a[href='#endpoints'] {
+    --tone: var(--c-endpoints);
+}
+
+#architecture,
+.docs-nav a[href='#architecture'] {
+    --tone: var(--c-architecture);
+}
+
+.section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--tone);
+}
+
+.section-head h2 {
+    margin: 0;
+    font-size: 1.45rem;
+    color: var(--tone);
+}
+
+.source {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
+.part-title {
+    margin: 22px 0 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tone);
+}
+
+/* ── Cards ── */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 12px;
+}
+
+.grid-wide {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+}
+
+.card {
+    --card-border: color-mix(in srgb, var(--tone) 25%, var(--border));
+    min-width: 0;
+    padding: 14px 16px;
+    background: color-mix(in srgb, var(--tone) 6%, var(--surface));
+    border: 1px solid var(--card-border);
+    border-top: 3px solid var(--tone);
+    border-radius: var(--radius);
+    scroll-margin-top: 64px;
+    transition: box-shadow 0.15s;
+}
+
+.card:hover {
+    box-shadow: 0 6px 20px -8px color-mix(in srgb, var(--tone) 55%, transparent);
+}
+
+.card:target {
+    outline: 2px solid var(--tone);
+    outline-offset: 2px;
+    box-shadow: 0 0 24px -4px color-mix(in srgb, var(--tone) 60%, transparent);
+}
+
+.card-wide {
+    grid-column: 1 / -1;
+}
+
+/* Card kinds — a reference prefix, or the first word of a conventions heading (sections.js).
+   A part takes the tone of its cards, so its title matches them. */
+.part:has(.card[data-kind='S']),
+.card[data-kind='S'] {
+    --tone: var(--c-criteria);
+}
+
+.part:has(.card[data-kind='Q']),
+.card[data-kind='Q'] {
+    --tone: var(--c-question);
+}
+
+.card[data-kind='frontend'] {
+    --tone: var(--c-backlog);
+}
+
+.card[data-kind='backend'] {
+    --tone: var(--c-endpoints);
+}
+
+.card[data-kind='dont'] {
+    --tone: var(--error);
+}
+
+.card[data-kind='commits'] {
+    --tone: var(--c-value);
+}
+
+.card[data-kind='definition'] {
+    --tone: var(--c-archive);
+}
+
+.card-head {
+    margin-bottom: 4px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--tone);
+}
+
+.card-head code {
+    background: none;
+    padding: 0;
+}
+
+.card p,
+.card ul,
+.card ol {
+    margin: 0 0 8px;
+}
+
+.card ul,
+.card ol {
+    padding-left: 20px;
+}
+
+.card > :last-child {
+    margin-bottom: 0;
+}
+
+.card-title {
+    font-weight: 600;
+}
+
+.card-foot {
+    margin-top: 10px;
+}
+
+.fields {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 4px 12px;
+    margin: 8px 0 0;
+    font-size: 0.87rem;
+}
+
+.fields dt {
+    color: var(--muted);
+}
+
+.fields dd {
+    margin: 0;
+}
+
+.fields-stacked {
+    display: block;
+}
+
+.fields-stacked dt {
+    margin-top: 8px;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.note {
+    font-size: 0.87rem;
+    color: var(--muted);
+}
+
+.warn,
+.error {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.warn {
+    background: var(--warn-bg);
+    color: var(--warn);
+}
+
+.error {
+    margin: 12px 0;
+    background: var(--error-bg);
+    color: var(--error);
+}
+
+/* ── References ── */
+a.ref {
+    --ref: var(--accent);
+    padding: 0 4px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--ref) 15%, transparent);
+    color: var(--ref);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+a.ref:hover {
+    background: color-mix(in srgb, var(--ref) 30%, transparent);
+}
+
+a.ref code {
+    padding: 0;
+    background: none;
+    color: inherit;
+}
+
+a.ref[href^='#V-'] {
+    --ref: var(--c-value);
+}
+
+a.ref[href^='#S-'] {
+    --ref: var(--c-criteria);
+}
+
+a.ref[href^='#I-'] {
+    --ref: var(--c-ontology);
+}
+
+a.ref[href^='#Q-'] {
+    --ref: var(--c-question);
+}
+
+a.ref[href^='#TASK-'] {
+    --ref: var(--c-backlog);
+}
+
+a.ref[href^='#ADR-'] {
+    --ref: var(--c-architecture);
+}
+
+a.ref.ref-missing {
+    --ref: var(--muted);
+    background: none;
+    border-bottom: 1px dashed currentColor;
+    border-radius: 0;
+    cursor: help;
+}
+
+/* ── Backlog, grouped by status ── */
+.status-group {
+    --status: var(--muted);
+}
+
+.status-planned {
+    --status: var(--c-backlog);
+}
+
+.status-in-progress {
+    --status: var(--put);
+}
+
+.status-blocked {
+    --status: var(--error);
+}
+
+.status-done {
+    --status: var(--get);
+}
+
+.status-head {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    margin: 22px 0 10px;
+    font: 700 0.85rem var(--mono);
+    color: var(--status);
+}
+
+.status-group .card {
+    border-top: 1px solid var(--card-border);
+    border-left: 4px solid var(--status);
+}
+
+.count {
+    padding: 0 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--tone) 15%, transparent);
+    color: var(--tone);
+    font-weight: 700;
+}
+
+.status-group .count {
+    background: color-mix(in srgb, var(--status) 18%, transparent);
+    color: var(--status);
+}
+
+/* ── Endpoints ── */
+.endpoints {
+    display: grid;
+    gap: 6px;
+    margin: 16px 0 12px;
+    padding: 0;
+    list-style: none;
+}
+
+.endpoint {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 12px;
+    align-items: baseline;
+    padding: 8px 12px;
+    background: color-mix(in srgb, var(--method, var(--muted)) 6%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--method, var(--muted)) 30%, var(--border));
+    border-left: 4px solid var(--method, var(--muted));
+    border-radius: 8px;
+}
+
+.endpoint .method {
+    justify-self: start;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--method, var(--muted)) 18%, transparent);
+    font: 700 0.78rem var(--mono);
+    color: var(--method, var(--muted));
+}
+
+.endpoint .success {
+    font-size: 0.88rem;
+    color: var(--muted);
+}
+
+.method-get {
+    --method: var(--get);
+}
+
+.method-post {
+    --method: var(--post);
+}
+
+.method-put {
+    --method: var(--put);
+}
+
+.method-patch {
+    --method: var(--patch);
+}
+
+.method-delete {
+    --method: var(--delete);
+}
+
+/* ── Lists, tables ── */
+.checklist {
+    padding-left: 0;
+    list-style: none;
+}
+
+.card .checklist {
+    padding-left: 0;
+}
+
+.checklist label {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    cursor: pointer;
+}
+
+.checklist input {
+    accent-color: var(--tone);
+}
+
+.checklist input:checked + span {
+    color: var(--muted);
+    text-decoration: line-through;
+}
+
+.part > ol {
+    margin: 0;
+    padding-left: 22px;
+}
+
+.part > ol li + li {
+    margin-top: 6px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid color-mix(in srgb, var(--tone) 30%, var(--border));
+    border-radius: var(--radius);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+th,
+td {
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    font-weight: 700;
+    background: color-mix(in srgb, var(--tone) 14%, var(--surface));
+    color: var(--tone);
+}
+
+tbody tr:hover td {
+    background: color-mix(in srgb, var(--tone) 6%, transparent);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+@media (max-width: 640px) {
+    .endpoint {
+        grid-template-columns: 70px minmax(0, 1fr);
+    }
+
+    .endpoint .success {
+        grid-column: 2;
+    }
+}

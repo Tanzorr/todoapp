@@ -15,6 +15,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
 | [TASK-014](TASK-014-api-smoke-tests.md) | Automated API checks with `node:test` | `planned` | P2 | V-1, V-5 | TASK-010 |
 | [TASK-015](TASK-015-one-title-rule.md) | One title-length rule on both sides | `planned` | P2 | V-3 | TASK-009 |
 | [TASK-016](TASK-016-readme-current.md) | Root README describes the current app | `planned` | P3 | V-4 | TASK-009 |
+| [TASK-017](TASK-017-docs-page.md) | One docs page rendered from `.ai/` | `in-progress` | P2 | V-4, V-5 | — |
 
 ## Order
 
@@ -25,6 +26,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
      │        └─► 016
      └─► 014
 013  (independent, do first)
+017  (independent)
 ```
 
 ## Conventions

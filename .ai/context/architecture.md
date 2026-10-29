@@ -21,11 +21,29 @@ Node / Express  (backend/src)
               parse req      rules +      SQL only
               send res       validation   (I-10)
   middleware/  not-found, error-handler → ApiError (I-7)
+        │  SQL with ? placeholders (mysql2 pool)
+        ▼
+MySQL 8  (backend/src/db/migrations/001_init.sql)
+  tasks          id · title VARCHAR(200) · description NULL · done · created_at · updated_at
+  time_entries   id · task_id → tasks.id ON DELETE CASCADE · started_at · stopped_at NULL = open
 ```
 
 **Dependencies point down only.** A repository never throws HTTP-shaped errors
 for business rules; a controller never contains SQL; `dom-elements.js` never
 calls `fetch`.
+
+## Request Flow
+
+Adding a Task, end to end:
+
+1. `add.html` submit → `src/add.js` → `createTask()` in `src/api-client.js` →
+   `POST /api/tasks` with `{ title, description }`.
+2. `tasks.routes.js` → `tasks.controller.js` reads the body → `tasks.service.js`
+   validates the title (I-6) → `tasks.repository.js`.
+3. MySQL runs `INSERT INTO tasks (title, description) VALUES (?, ?)` (I-10) and
+   returns the new `id`.
+4. The controller answers `201` with the `Task`; `add.js` redirects to
+   `index.html`, where `src/render.js` fetches the list and draws a TaskItem per Task.
 
 ## Concept → Code
 
@@ -99,3 +117,14 @@ change. Cost: manual upkeep on every exported-behaviour change.
 **2026-10-29 · Accepted.** `tasks/` was gitignored, so specs were not shared or
 reviewed. `.ai/` is committed and traceable. Cost: legacy specs summarised, not
 copied — originals stay in the local `tasks/` folder until deleted.
+
+### ADR-010 — Docs page is own code reading `.ai/`, not a docs tool
+**2026-10-29 · Accepted** (TASK-017). `docs/index.html` fetches the `.ai/` files
+on load and renders them as linked cards. Rejected: Docsify — a third-party
+script that renders pages, with no board or ID links; VitePress / Starlight — npm
+packages and a build step (ADR-003); Backlog.md — its own ticket format and CLI,
+so `.ai/` would bend to the tool. `docs/` fetches static files, not the API (I-7
+untouched), and imports nothing from `src/`. Cost: the headings and columns named
+in `docs/config.js` become a contract — renaming one breaks that section, which
+then shows an error; inline markdown beyond bold, italic, code and links renders
+as text.
