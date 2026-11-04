@@ -73,6 +73,19 @@ Adding a Task, end to end:
 
 Errors: 400 invalid input, 404 missing task/route, 409 timer state, 500 otherwise.
 
+## Site Map
+
+One row per HTML page; the docs page draws it as a tree (ADR-012). `Parent` follows
+the breadcrumbs.
+
+| Page | Parent | Purpose | Goes to |
+| :--- | :--- | :--- | :--- |
+| [`index.html`](../../index.html) | — | Task list: add, start / pause, done, delete | `add.html`, `show.html`, `edit.html` |
+| [`add.html`](../../add.html) | `index.html` | New Task form | `index.html` |
+| [`show.html`](../../show.html) | `index.html` | One Task's details; needs a `SelectedTask` | `edit.html`, `index.html` |
+| [`edit.html`](../../edit.html) | `index.html` | Change a Task; needs a `SelectedTask` | `index.html` |
+| [`docs/index.html`](../../docs/index.html) | — | Renders `.ai/` | — |
+
 ## ADRs
 
 Decisions made before this file existed are recorded with their original date.
@@ -135,3 +148,13 @@ is shown; `#<id>` picks it. Rejected: one `.html` per section — each would fet
 every file again to resolve references to other sections' cards, and
 `markMissingRefs` could not see them. Cost: the first view waits for all files;
 search and list page reset on reload.
+
+### ADR-012 — Site map is a table in `architecture.md`, not read out of `src/`
+**2026-11-03 · Accepted** (TASK-019). Each page's parent, purpose and moves are a
+row in `## Site Map`; the `#sitemap` section loads each page file to check it.
+Rejected: reading links out of `src/` and the HTML — the moves are
+`window.location.href` calls behind conditions (`src/action-button.js`), so it
+would take a JavaScript parser, and code does not state a page's purpose. Cost:
+a removed page is flagged, an added page with no row is not; `Goes to` can drift
+from the code unnoticed. Only the rule in [`conventions.md`](conventions.md)
+covers either.

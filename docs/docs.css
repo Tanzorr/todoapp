@@ -689,6 +689,55 @@ a.ref.ref-missing {
     --method: var(--delete);
 }
 
+/* ── Site map ── */
+.tree {
+    --tree-line: color-mix(in srgb, var(--tone) 45%, var(--border));
+    display: grid;
+    gap: 10px;
+    max-width: 820px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tree .tree {
+    margin-top: 10px;
+    padding-left: 28px;
+}
+
+.tree .card-head {
+    font-size: 1rem;
+}
+
+/* A child hangs off a line running down from its parent: a stem, then a tick to its card. */
+.tree .tree > .tree-item {
+    position: relative;
+}
+
+.tree .tree > .tree-item::before,
+.tree .tree > .tree-item::after {
+    content: '';
+    position: absolute;
+    left: -16px;
+}
+
+.tree .tree > .tree-item::before {
+    top: -10px;
+    bottom: 0;
+    border-left: 2px solid var(--tree-line);
+}
+
+.tree .tree > .tree-item::after {
+    top: 24px;
+    width: 16px;
+    border-top: 2px solid var(--tree-line);
+}
+
+.tree .tree > .tree-item:last-child::before {
+    bottom: auto;
+    height: 34px;
+}
+
 /* ── Lists, tables ── */
 .checklist {
     padding-left: 0;

@@ -17,6 +17,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
 | [TASK-016](TASK-016-readme-current.md) | Root README describes the current app | `planned` | P3 | V-4 | TASK-009 |
 | [TASK-017](TASK-017-docs-page.md) | One docs page rendered from `.ai/` | `in-progress` | P2 | V-4, V-5 | — |
 | [TASK-018](TASK-018-docs-pages-search.md) | Docs: one page per section, search and pages for long lists | `in-progress` | P2 | V-4, V-5 | TASK-017 |
+| [TASK-019](TASK-019-docs-site-map.md) | Site map on the docs page | `in-progress` | P3 | V-4 | TASK-018 |
 
 ## Order
 
@@ -27,7 +28,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
      │        └─► 016
      └─► 014
 013  (independent, do first)
-017 ───► 018
+017 ───► 018 ───► 019
 ```
 
 ## Conventions

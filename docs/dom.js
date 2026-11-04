@@ -19,7 +19,7 @@ export function isRef(text) {
     return REF_ONLY.test(text);
 }
 
-function refLink(id, ...label) {
+export function refLink(id, ...label) {
     const link = el('a', 'ref', ...(label.length ? label : [id]));
     link.href = `#${id}`;
     return link;

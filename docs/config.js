@@ -58,5 +58,12 @@ export const DOCS = {
             file: 'context/architecture.md',
             parts: { layers: 'Layers', flow: 'Request Flow', adrs: 'ADRs' },
         },
+        {
+            id: 'sitemap',
+            title: 'Site map',
+            kind: 'sitemap',
+            file: 'context/architecture.md',
+            parts: { pages: 'Site Map' },
+        },
     ],
 };

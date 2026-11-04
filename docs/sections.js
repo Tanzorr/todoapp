@@ -10,6 +10,7 @@ import {
     grid,
     inline,
     part,
+    refLink,
     rowCard,
     tableNode,
 } from './dom.js';
@@ -26,6 +27,8 @@ import { findTables, hasColumns, toRecords } from './md-table.js';
 
 const STATUS = /^`([^`]+)`\s*(?:[—–-]\s*)?(.*)$/;
 const PLACEHOLDER = /^[—–-]?$/;
+const PAGE_COLUMNS = ['Page', 'Parent', 'Purpose', 'Goes to'];
+const DOCS_PAGE = new URL('index.html', window.location.href).href;
 
 function sectionLines(doc, title) {
     const lines = findSection(doc.lines, title);
@@ -280,6 +283,84 @@ async function architecture(section, load) {
     );
 }
 
+async function readPage(row, base, load) {
+    const page = { row, name: plainText(row.Page), parent: plainText(row.Parent), url: null };
+    const link = firstLink(row.Page);
+    if (!link) return { ...page, error: 'Site Map row has no link to a page file' };
+    try {
+        const { url } = await load(link.href, base);
+        return { ...page, url, error: null };
+    } catch (err) {
+        return { ...page, error: err.message };
+    }
+}
+
+// Following Parent from `page` comes back to it, so a walk down from the top would never reach it.
+function parentLoops(page, byName) {
+    const seen = new Set();
+    let at = byName.get(page.parent);
+    while (at && at !== page && !seen.has(at)) {
+        seen.add(at);
+        at = byName.get(at.parent);
+    }
+    return at === page;
+}
+
+function pageWarnings(page, byName) {
+    const warnings = page.error ? [page.error] : [];
+    if (PLACEHOLDER.test(page.parent)) return warnings;
+    if (!byName.has(page.parent)) warnings.push(`No row names the Parent “${page.parent}”`);
+    else if (parentLoops(page, byName)) warnings.push(`Parent “${page.parent}” leads back here`);
+    return warnings;
+}
+
+function treeItem(node, children = []) {
+    return el('li', 'tree-item', node, children.length ? el('ul', 'tree', ...children) : null);
+}
+
+function pageItem(page, pages, base) {
+    const children = pages
+        .filter((child) => child.under === page)
+        .map((child) => pageItem(child, pages, base));
+    if (page.url === DOCS_PAGE) {
+        children.push(...DOCS.sections.map(({ id, title }) => treeItem(card(refLink(id, title)))));
+    }
+    return treeItem(
+        card(
+            inline(page.row.Page, base),
+            fieldList(
+                PAGE_COLUMNS.slice(2).map((column) => [column, page.row[column]]),
+                base
+            ),
+            ...page.warnings.map((warning) => el('p', 'warn', warning))
+        ),
+        children
+    );
+}
+
+// A row with a warning goes to the top level, so its children still have somewhere to hang.
+async function sitemap(section, load) {
+    const doc = await load(section.file);
+    const table = tableIn(doc, section.parts.pages);
+    if (!hasColumns(table, PAGE_COLUMNS)) {
+        throw new Error(
+            `The "${section.parts.pages}" table in ${doc.url} needs ${PAGE_COLUMNS.join(', ')}`
+        );
+    }
+    const rows = toRecords({ ...table, rows: realRows(table) });
+    const pages = await Promise.all(rows.map((row) => readPage(row, doc.url, load)));
+    const byName = new Map(pages.map((page) => [page.name, page]));
+    for (const page of pages) {
+        page.warnings = pageWarnings(page, byName);
+        page.under = page.warnings.length ? undefined : byName.get(page.parent);
+    }
+    return el(
+        'ul',
+        'tree',
+        ...pages.filter((page) => !page.under).map((page) => pageItem(page, pages, doc.url))
+    );
+}
+
 export const RENDERERS = {
     value,
     ontology,
@@ -288,4 +369,5 @@ export const RENDERERS = {
     conventions,
     endpoints,
     architecture,
+    sitemap,
 };
