@@ -10,7 +10,7 @@ Thumbs.db
 
 # Dependencies
 node_modules/
-tasks/
+/tasks/
 
 # Secrets (I-9)
 .env
