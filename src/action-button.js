@@ -1,5 +1,7 @@
 // action-button.js
 // Provides a consistent floating page action button behaviour across pages.
+import { getTaskId } from './data.js';
+
 export function initPageAction() {
     const btn = document.querySelector('.page-action-btn');
     if (!btn) return;
@@ -22,7 +24,7 @@ export function initPageAction() {
     // No form on page — use the button for navigation:
     btn.addEventListener('click', () => {
         // If we are on the show page (task card present) — go to edit
-        const taskId = localStorage.getItem('taskId');
+        const taskId = getTaskId();
         if (taskShow && taskId) {
             window.location.href = 'edit.html';
             return;
