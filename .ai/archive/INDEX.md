@@ -25,7 +25,8 @@ are no ticket files here and outcomes come from the code and git history.
 
 | ID | Title | Completed | Value | Outcome |
 | :--- | :--- | :--- | :--- | :--- |
-| — | | | | |
+| [TASK-010](TASK-010-track-tasks-module.md) | Put the backend tasks module under version control | 2026-11-05 | V-2, V-5 | `.gitignore` ignores only root `/tasks/`; all five module files tracked; a fresh clone reaches `/health`. |
+| [TASK-009](TASK-009-frontend-api-client.md) | Frontend reads and writes through the API (M5) | 2026-11-05 | V-1, V-2 | Every page reads and writes through `src/api-client.js`; `localStorage` holds only `taskId`. |
 
 ## How to Archive
 

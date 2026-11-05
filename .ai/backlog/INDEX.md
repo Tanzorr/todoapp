@@ -7,9 +7,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
 
 | ID | Title | Status | Priority | Value | Depends on |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| [TASK-010](TASK-010-track-tasks-module.md) | Put the backend tasks module under version control | `planned` | P0 | V-2, V-5 | — |
 | [TASK-013](TASK-013-untrack-env.md) | Stop tracking `backend/.env` | `planned` | P0 | V-5 | — |
-| [TASK-009](TASK-009-frontend-api-client.md) | Frontend reads and writes through the API (M5) | `in-progress` | P1 | V-1, V-2 | TASK-010 |
 | [TASK-012](TASK-012-green-check.md) | `npm run check` passes | `planned` | P1 | V-4 | TASK-009 |
 | [TASK-011](TASK-011-timer-ui-follows-server.md) | Timer UI always matches the server | `planned` | P1 | V-1 | TASK-009 |
 | [TASK-014](TASK-014-api-smoke-tests.md) | Automated API checks with `node:test` | `planned` | P2 | V-1, V-5 | TASK-010 |

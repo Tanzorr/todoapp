@@ -93,7 +93,6 @@ Observable statements, checkable against a running system:
 - **S-4** — Deleting a task leaves no orphan `time_entries` rows.
 - **S-5** — `git grep` finds no live credential in the repository. *(Fails today — TASK-013.)*
 - **S-6** — A fresh clone plus the steps in `stack.md` gives a working app.
-  *(Fails today — TASK-010.)*
 
 ## 7. Non-Goals
 

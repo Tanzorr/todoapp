@@ -2,7 +2,7 @@
 
 | Field | Value |
 | :--- | :--- |
-| **Status** | `in-progress` — implemented, uncommitted on `prettify-show` |
+| **Status** | `done` |
 | **Priority** | P1 |
 | **Value driver** | `V-1`, `V-2` |
 | **Depends on** | `TASK-010` (the API it calls must be in git) |
@@ -21,12 +21,12 @@ through the API; the browser keeps no task data of its own.
 
 ## Acceptance Criteria
 
-- [ ] AC-1 — Adding on `add.html` creates a `tasks` row; it is listed on `index.html` (T-1, T-9).
-- [ ] AC-2 — Deleting removes the row and its `time_entries` (T-7, T-11).
-- [ ] AC-3 — Editing on `edit.html` updates title and description.
-- [ ] AC-4 — Start/stop writes `time_entries`; the list shows the server total (T-4…T-6).
-- [ ] AC-5 — `rg 'fetch\(' src` hits only `api-client.js`; no task data in `localStorage` (only `taskId`).
-- [ ] AC-6 — Pages work from a static server with no build step (S-3).
+- [x] AC-1 — Adding on `add.html` creates a `tasks` row; it is listed on `index.html` (T-1, T-9).
+- [x] AC-2 — Deleting removes the row and its `time_entries` (T-7, T-11).
+- [x] AC-3 — Editing on `edit.html` updates title and description.
+- [x] AC-4 — Start/stop writes `time_entries`; the list shows the server total (T-4…T-6).
+- [x] AC-5 — `rg 'fetch\(' src` hits only `api-client.js`; no task data in `localStorage` (only `taskId`).
+- [x] AC-6 — Pages work from a static server with no build step (S-3).
 
 ## Out of Scope
 
@@ -40,3 +40,13 @@ through the API; the browser keeps no task data of its own.
 instead of `getTaskId()` from `data.js` — fix here, it is the same concept.
 `validations.js` still names its parameter `taskStoreArray`, and `add.js` passes
 `[]`, so the duplicate-title check is dead code — decide in TASK-015.
+
+---
+
+## Outcome
+
+**Completed:** 2026-11-05
+**What was built:** The client was already committed before this close-out; the status line saying uncommitted was stale. Added the fix from Notes: `action-button.js` reads `getTaskId()`.
+**Deviations from the plan:** none.
+**Verified how:** Chrome 136 headless driven over CDP. T-1…T-8: 15 of 15 pass. T-9, T-11, T-12: pass. AC-3: edit page changed title and description, read back from `GET /tasks/:id`. AC-4: start wrote an open entry. AC-5: `grep -rn 'fetch(' src` hits only `api-client.js`; `localStorage` only in `data.js`. AC-6: served by `python3 -m http.server 8080`.
+**Follow-ups raised:** none.
