@@ -1,6 +1,5 @@
 //constants.js
-export const MIN_TASK_LENGTH = 5;
-export const MAX_TASK_LENGTH = 50;
+export const MAX_TASK_LENGTH = 200;
 
 export const DEFAULT_TIMER_VALUE = 0;
 
@@ -31,8 +30,6 @@ export const PROMPTS = {
 };
 
 export const ALERTS = {
-    taskExists: 'Task already exists',
-    emptyTask: 'Task title cannot be empty',
-    minLength: `Task title must be at least ${MIN_TASK_LENGTH} characters long`,
-    maxLength: `Task title must be less than ${MAX_TASK_LENGTH} characters long`,
+    emptyTask: 'Enter a task title.',
+    maxLength: `Title can be at most ${MAX_TASK_LENGTH} characters.`,
 };

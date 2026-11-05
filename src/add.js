@@ -6,7 +6,7 @@ import { initPageAction } from './action-button.js';
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (taskValidation(title?.value, [])) {
+    if (taskValidation(title.value)) {
         try {
             await createTask(title.value, description.value);
             window.location.href = 'index.html';
