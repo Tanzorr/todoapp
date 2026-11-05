@@ -8,7 +8,6 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
 | ID | Title | Status | Priority | Value | Depends on |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | [TASK-013](TASK-013-untrack-env.md) | Stop tracking `backend/.env` | `planned` | P0 | V-5 | — |
-| [TASK-011](TASK-011-timer-ui-follows-server.md) | Timer UI always matches the server | `planned` | P1 | V-1 | TASK-009 |
 | [TASK-014](TASK-014-api-smoke-tests.md) | Automated API checks with `node:test` | `planned` | P2 | V-1, V-5 | TASK-010 |
 | [TASK-016](TASK-016-readme-current.md) | Root README describes the current app | `planned` | P3 | V-4 | TASK-009 |
 | [TASK-017](TASK-017-docs-page.md) | One docs page rendered from `.ai/` | `in-progress` | P2 | V-4, V-5 | — |

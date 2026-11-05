@@ -29,6 +29,7 @@ are no ticket files here and outcomes come from the code and git history.
 | [TASK-009](TASK-009-frontend-api-client.md) | Frontend reads and writes through the API (M5) | 2026-11-05 | V-1, V-2 | Every page reads and writes through `src/api-client.js`; `localStorage` holds only `taskId`. |
 | [TASK-012](TASK-012-green-check.md) | `npm run check` passes | 2026-11-05 | V-4 | `ecmaVersion: 2022` parses top-level `await`; three files formatted in their own commit; `npm run check` exits 0. |
 | [TASK-015](TASK-015-one-title-rule.md) | One title-length rule on both sides | 2026-11-05 | V-3 | Add and edit share `taskValidation`: 1–200 chars after trim (I-6). Dead duplicate check removed, so no ADR. |
+| [TASK-011](TASK-011-timer-ui-follows-server.md) | Timer UI always matches the server | 2026-11-05 | V-1 | `done: true` closes the open TimeEntry server-side (ADR-013, Q-2); the row re-reads `GET …/timer` after every action and keeps ticking after a reload. |
 
 ## How to Archive
 
