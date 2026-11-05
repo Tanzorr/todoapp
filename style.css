@@ -1,36 +1,206 @@
+:root {
+    --ink: #111;
+    --ink-soft: #55554f;
+    --ink-muted: #6b6b65;
+    --ink-footer: #5f5f5a;
+    --line: #e3e3de;
+    --line-control: #8a8a83;
+    --page: #f7f7f4;
+    --surface: #fff;
+    --surface-foot: #fbfbf9;
+    --surface-busy: #f1f1ec;
+    --skeleton: #ecece7;
+    --danger: #b3261e;
+    --danger-dark: #8e1d17;
+    --danger-soft: #fbedeb;
+    --danger-line: #f0c9c5;
+    --gold: #f2c94c;
+    --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'DejaVu Sans Mono', Menlo, Consolas, monospace;
+}
+
 *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-.header, .footer{
-    background: black;
-    color: white;
-    padding: 24px 0;
+[hidden] {
+    display: none !important;
 }
 
-.container {
-    width: 100%;
-    max-width: 1200px;
-    padding-right: 15px;
-    padding-left: 15px;
-    margin-right: auto;
-    margin-left: auto;
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--font-sans);
 }
 
-/* Header title (target only the header to avoid colliding with form inputs named "title") */
-header .title{
-    font-family: 'Georgia', 'Times New Roman', serif;
-    font-size: 34px;
-    letter-spacing: 0.06em;
-    text-align: left;
-    margin: 0;
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button, input, textarea {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a:focus-visible, button:focus-visible, input:focus, textarea:focus {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+}
+
+/* The ink ring would be 1:1 on the ink header */
+.site-header a:focus-visible {
+    outline-color: #fff;
+}
+
+.site-header {
+    background: var(--ink);
     color: #fff;
 }
 
-.content{
-    padding: 20px 0;
+.site-header-inner {
+    max-width: 920px;
+    height: 56px;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.site-name {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.page-main {
+    flex: 1;
+    width: 100%;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 32px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.page-narrow {
+    max-width: 720px;
+    padding-top: 16px;
+}
+
+.page-title {
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+}
+
+.site-footer {
+    width: 100%;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 16px 24px;
+    font-size: 13px;
+    color: var(--ink-footer);
+}
+
+.page-narrow + .site-footer {
+    max-width: 720px;
+}
+
+/* Buttons and button-shaped links */
+.btn {
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1.5px solid transparent;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #333;
+    border-color: #333;
+}
+
+.btn-outline {
+    background: var(--surface);
+    border-color: var(--ink);
+    color: var(--ink);
+}
+
+.btn-outline:hover {
+    background: var(--ink);
+    color: #fff;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    font-weight: 500;
+}
+
+.btn-ghost:hover {
+    background: rgba(0, 0, 0, 0.07);
+    color: var(--ink);
+}
+
+.btn-danger {
+    background: transparent;
+    color: var(--ink-soft);
+    font-weight: 500;
+}
+
+.btn-danger:hover {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.btn-solid-danger {
+    background: var(--danger);
+    color: #fff;
+}
+
+.btn-solid-danger:hover {
+    background: var(--danger-dark);
+}
+
+.btn-icon {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
 }
 
 /* Form card (add / edit) - make add/edit pages match show card look */
@@ -77,21 +247,6 @@ header .title{
 
 .add-task-btn:hover, .save-task-btn:hover{
     background: #222;
-}
-
-/* Breadcrumbs */
-.breadcrumbs{
-    margin-bottom: 16px;
-    font-size: 14px;
-    color: #666;
-}
-.breadcrumbs a{
-    color: #111;
-    text-decoration: none;
-    font-weight: 600;
-}
-.breadcrumbs span{
-    color: #666;
 }
 
 /* Floating page action button (consistent across pages) */
@@ -171,21 +326,6 @@ header .title{
 .row{
     display: flex;
     justify-content: space-between;
-}
-
-.btn{
-    background: #111;
-    color: #fff;
-    padding: 8px 14px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.06);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-    transition: transform 120ms ease, box-shadow 120ms ease, background 150ms ease;
-}
-
-.btn:hover{
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(0,0,0,0.12);
 }
 
 .task-item {
