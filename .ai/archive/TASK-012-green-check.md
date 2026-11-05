@@ -2,7 +2,7 @@
 
 | Field | Value |
 | :--- | :--- |
-| **Status** | `planned` |
+| **Status** | `done` |
 | **Priority** | P1 |
 | **Value driver** | `V-4` |
 | **Depends on** | `TASK-009` |
@@ -23,9 +23,19 @@ The Definition of Done's first item is achievable again. On 2026-10-29
 
 ## Acceptance Criteria
 
-- [ ] AC-1 — `npm run check` exits 0.
-- [ ] AC-2 — Formatting lands in its own commit, separate from the config change.
+- [x] AC-1 — `npm run check` exits 0.
+- [x] AC-2 — Formatting lands in its own commit, separate from the config change.
 
 ## Out of Scope
 
 - Linting `backend/` (needs a Node/CommonJS config block) — separate ticket if wanted.
+
+---
+
+## Outcome
+
+**Completed:** 2026-11-05
+**What was built:** `ecmaVersion` 2020 → 2022 in `eslint.config.mjs`; `prettier --write` as a separate `style:` commit (AC-2).
+**Deviations from the plan:** none.
+**Verified how:** `npm run check` exit 0: 0 errors, 1 `no-console` warning in `src/show.js` (removed by TASK-021), all files pass Prettier.
+**Follow-ups raised:** none.
