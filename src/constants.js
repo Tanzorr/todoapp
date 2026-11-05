@@ -1,8 +1,6 @@
 //constants.js
 export const MAX_TASK_LENGTH = 200;
 
-export const DEFAULT_TIMER_VALUE = 0;
-
 export const BUTTON_TEXT = {
     edit: 'edit',
     done: 'done',

@@ -26,7 +26,7 @@ Run against a migrated database with the API and static server up
 | T-7 | Delete cascades | `DELETE …/$T` → 204; `SELECT COUNT(*) FROM time_entries WHERE task_id=$T` → 0 | I-5, S-4 |
 | T-8 | Unknown route | `curl -s localhost:3000/nope` → 404 ApiError | I-7 |
 | T-9 | Browser: add → list | add page → task appears on index after redirect | V-3 |
-| T-10 | Browser: timer survives reload | start, wait 5 s, reload → still running, keeps counting | **S-2** (fails today — TASK-011) |
+| T-10 | Browser: timer survives reload | start, wait 5 s, reload → still running, keeps counting | **S-2** |
 | T-11 | Browser: delete while running | row disappears, no console error, no further ticks | I-5 |
 | T-12 | Browser: HTML in title | title `<b>x</b>` renders as literal text | I-8 |
 

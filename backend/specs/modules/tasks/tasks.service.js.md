@@ -29,7 +29,7 @@ Business logic layer for tasks. Handles validation, error checking, and orchestr
     - `fields` (object): Fields to update from `{ title?, description?, done? }`.
   - **Returns:** Promise resolving to updated task object.
   - **Throws:** Error with `status: 404` if task not found. Validation error (400) if title is invalid.
-  - **Behavior:** If `fields.title` is provided, it is validated and trimmed.
+  - **Behavior:** If `fields.title` is provided, it is validated and trimmed. If `fields.done` is truthy, an open TimeEntry is closed before the update (ADR-013). Reopening does not resume it.
 
 - **`deleteTask(id)`** (async): Delete a task.
   - **Parameters:** `id` (number): Task ID.
@@ -45,7 +45,7 @@ Business logic layer for tasks. Handles validation, error checking, and orchestr
 
 ## Dependencies
 
-- **Imports:** `./tasks.repository`, `./tasks.validation`
+- **Imports:** `./tasks.repository`, `../timer/timer.repository`, `./tasks.validation`
 - **Depends on:** Called by `tasks.controller.js`
 
 ## Notes

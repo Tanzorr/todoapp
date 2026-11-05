@@ -1,11 +1,6 @@
 //dom-elements.js
 import { createTimer } from './timer.js';
-import {
-    BUTTON_TEXT,
-    DEFAULT_TIMER_VALUE,
-    TASK_SHOW_LABELS,
-    TASK_STATUS_TEXT,
-} from './constants.js';
+import { BUTTON_TEXT, TASK_SHOW_LABELS, TASK_STATUS_TEXT } from './constants.js';
 import { deleteTodoItem, editTodoItem, toggleDoneStatus } from './actions.js';
 
 export const form = document.querySelector('.form');
@@ -41,7 +36,6 @@ export function createTitle(text) {
 }
 
 export function createControls(taskId, workingTime = 0, isRunning = false) {
-    const { handleTimer, stop } = createTimer(taskId, workingTime, isRunning);
     const container = document.createElement('div');
     container.classList.add('task-controls');
 
@@ -49,14 +43,28 @@ export function createControls(taskId, workingTime = 0, isRunning = false) {
     const doneButton = createButton(BUTTON_TEXT.done, toggleDoneStatus);
     const deleteButton = createButton(BUTTON_TEXT.delete, deleteTodoItem);
 
-    const timerButton = createButton(`${workingTime ?? DEFAULT_TIMER_VALUE}s`);
-    const controlButton = createButton(isRunning ? BUTTON_TEXT.pause : BUTTON_TEXT.start, () => {
-        handleTimer(timerButton, controlButton);
+    const timerButton = createButton('');
+    const controlButton = createButton('', async () => {
+        try {
+            await toggle();
+        } catch (err) {
+            alert(err.message);
+        }
     });
+
+    const { toggle, sync, stop } = createTimer(
+        taskId,
+        workingTime,
+        isRunning,
+        (seconds, running) => {
+            timerButton.textContent = `${seconds} s`;
+            controlButton.textContent = running ? BUTTON_TEXT.pause : BUTTON_TEXT.start;
+        }
+    );
 
     container.append(editButton, doneButton, deleteButton, controlButton, timerButton);
 
-    return { container, stopTimer: stop };
+    return { container, stopTimer: stop, syncTimer: sync };
 }
 
 export function createLink(text, href, classes) {

@@ -1,6 +1,7 @@
 'use strict';
 
 const repo = require('./tasks.repository');
+const timerRepo = require('../timer/timer.repository');
 const { validateTitle } = require('./tasks.validation');
 
 async function listTasks() {
@@ -32,6 +33,10 @@ async function updateTask(id, fields) {
     if (fields.title !== undefined) {
         validateTitle(fields.title);
         fields.title = fields.title.trim();
+    }
+    if (fields.done) {
+        const open = await timerRepo.findOpenEntry(id);
+        if (open) await timerRepo.closeEntry(open.id);
     }
     return repo.update(id, fields);
 }

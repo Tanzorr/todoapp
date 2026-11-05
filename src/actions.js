@@ -28,7 +28,7 @@ export async function toggleDoneStatus(event) {
     const nowDone = !titleEl.classList.contains('done');
     try {
         await updateTask(taskId, { done: nowDone });
-        taskItemEl.stopTimer?.();
+        await taskItemEl.syncTimer();
         titleEl.classList.toggle('done', nowDone);
     } catch (err) {
         alert(err.message);

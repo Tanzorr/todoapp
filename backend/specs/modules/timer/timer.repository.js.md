@@ -36,7 +36,7 @@ Data access layer for timer entries. Encapsulates all SQL queries on the `time_e
 ## Dependencies
 
 - **Imports:** `../../db/pool`
-- **Depends on:** Called by `timer.service.js`
+- **Depends on:** Called by `timer.service.js`, and by `tasks.service.js` to close an open entry on `done` (ADR-013)
 
 ## Notes
 

@@ -65,7 +65,7 @@ Adding a Task, end to end:
 | GET | `/api/tasks` | 200 `Task[]` |
 | GET | `/api/tasks/:id` | 200 `Task` |
 | POST | `/api/tasks` | 201 `Task` — body `{ title, description? }` |
-| PUT | `/api/tasks/:id` | 200 `Task` — body `{ title?, description?, done? }` |
+| PUT | `/api/tasks/:id` | 200 `Task` — body `{ title?, description?, done? }`; `done: true` stops the Timer (ADR-013) |
 | DELETE | `/api/tasks/:id` | 204 |
 | GET | `/api/tasks/:id/timer` | 200 `{ taskId, totalSeconds, isRunning }` |
 | POST | `/api/tasks/:id/timer/start` | 201 · 409 if running |
@@ -158,3 +158,12 @@ would take a JavaScript parser, and code does not state a page's purpose. Cost:
 a removed page is flagged, an added page with no row is not; `Goes to` can drift
 from the code unnoticed. Only the rule in [`conventions.md`](conventions.md)
 covers either.
+
+### ADR-013 — Marking a Task done stops its Timer on the server
+**2026-11-05 · Accepted** (TASK-011), answers Q-2. `PUT` with `done: true` closes
+an open TimeEntry before setting the flag, so tracked time stops when the work
+does. Rejected: keeping the Timer running — a done Task would go on counting, and
+hiding Start on it (TASK-020) would leave no way to stop it. Cost: `tasks.service`
+imports `timer.repository`; reopening does not resume the Timer; closing and
+updating are two statements, so a failure between them leaves a stopped Timer on
+a Task that is not done, which a retry fixes.

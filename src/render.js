@@ -16,9 +16,10 @@ export async function renderTodoList() {
 
 export function addTodo(task, totalSeconds = 0, isRunning = false) {
     const taskTitle = createTitle(task.title);
-    const { container, stopTimer } = createControls(task.id, totalSeconds, isRunning);
+    const { container, stopTimer, syncTimer } = createControls(task.id, totalSeconds, isRunning);
     const taskDomItem = createTaskItem(['task-item', 'row'], [taskTitle, container]);
     taskDomItem.stopTimer = stopTimer;
+    taskDomItem.syncTimer = syncTimer;
     taskDomItem.setAttribute('item-id', task.id);
     taskTitle.addEventListener('click', () => {
         saveTaskId(task.id);

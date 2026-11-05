@@ -88,7 +88,7 @@ Observable statements, checkable against a running system:
 
 - **S-1** — Start → wait N s → stop → reload shows N ± 1 s.
 - **S-2** — Reload while a timer runs: the task still shows as running and keeps
-  counting. *(Fails today — TASK-011.)*
+  counting.
 - **S-3** — Every page works served as static files, with no build step.
 - **S-4** — Deleting a task leaves no orphan `time_entries` rows.
 - **S-5** — `git grep` finds no live credential in the repository. *(Fails today — TASK-013.)*

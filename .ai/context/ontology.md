@@ -44,7 +44,7 @@ SelectedTask--refersTo-->         Task          (show / edit pages)
 
 - **Q-1** — Should I-2 be enforced by the database (unique open entry per task)?
   Today it is a read-then-insert in `timer.service.js`, so two fast clicks can race.
-- **Q-2** — Should marking a Task `done` stop its Timer server-side? Today the UI
-  stops the local tick only; the open TimeEntry keeps counting (TASK-011).
+- **Q-2** — Should marking a Task `done` stop its Timer server-side? *Answered: yes
+  (ADR-013).*
 - **Q-3** — SelectedTask in `localStorage` vs `?id=` in the URL. The URL version
   is bookmarkable and works per tab.
