@@ -58,7 +58,7 @@ export function createControls(taskId, workingTime = 0, isRunning = false) {
         isRunning,
         (seconds, running) => {
             timerButton.textContent = `${seconds} s`;
-            controlButton.textContent = running ? BUTTON_TEXT.pause : BUTTON_TEXT.start;
+            controlButton.textContent = running ? BUTTON_TEXT.stop : BUTTON_TEXT.start;
         }
     );
 

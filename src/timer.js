@@ -1,6 +1,15 @@
 //timer.js
 import { startTimer, stopTimer, getTimerTotal } from './api-client.js';
 
+export function formatTime(totalSeconds) {
+    const parts = [
+        Math.floor(totalSeconds / 3600),
+        Math.floor((totalSeconds % 3600) / 60),
+        totalSeconds % 60,
+    ];
+    return parts.map((part) => String(part).padStart(2, '0')).join(':');
+}
+
 export function createTimer(taskId, initialSeconds, initiallyRunning, render) {
     let seconds = initialSeconds;
     let isRunning = false;

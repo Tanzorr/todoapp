@@ -1,14 +1,25 @@
 // api-client.js
+import { ALERTS } from './constants.js';
+
 const BASE_URL = 'http://localhost:3000/api';
 
 async function apiFetch(path, options = {}) {
-    const res = await fetch(`${BASE_URL}${path}`, {
-        headers: { 'Content-Type': 'application/json' },
-        ...options,
-    });
+    let res;
+    try {
+        res = await fetch(`${BASE_URL}${path}`, {
+            headers: { 'Content-Type': 'application/json' },
+            ...options,
+        });
+    } catch {
+        throw new Error(ALERTS.serverDown);
+    }
     if (res.status === 204) return null;
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error?.message || 'API error');
+    if (!res.ok) {
+        const err = new Error(data.error?.message || 'API error');
+        err.field = data.error?.field;
+        throw err;
+    }
     return data;
 }
 
