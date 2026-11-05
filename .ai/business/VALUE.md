@@ -118,3 +118,4 @@ Named explicitly so scope cannot creep in through the back door:
 | Credentials committed | Database password leaks | I-9, TASK-013 |
 | No automated tests | Regressions found by hand, late | Manual checks in `testing.md`; TASK-014 |
 | Docs drift from code | Agents and learners trust wrong facts — V-4, V-5 eroded | Definition of Done requires updating specs, ontology and ADRs in the same change |
+
