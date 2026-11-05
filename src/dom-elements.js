@@ -12,7 +12,6 @@ export const form = document.querySelector('.form');
 export const title = form?.querySelector('.title');
 export const description = form?.querySelector('.description');
 
-
 export function createTaskItem(extraClasses, innerElements) {
     const taskItem = document.createElement('div');
     taskItem.classList.add(...extraClasses);
@@ -51,10 +50,9 @@ export function createControls(taskId, workingTime = 0, isRunning = false) {
     const deleteButton = createButton(BUTTON_TEXT.delete, deleteTodoItem);
 
     const timerButton = createButton(`${workingTime ?? DEFAULT_TIMER_VALUE}s`);
-    const controlButton = createButton(
-        isRunning ? BUTTON_TEXT.pause : BUTTON_TEXT.start,
-        () => { handleTimer(timerButton, controlButton); }
-    );
+    const controlButton = createButton(isRunning ? BUTTON_TEXT.pause : BUTTON_TEXT.start, () => {
+        handleTimer(timerButton, controlButton);
+    });
 
     container.append(editButton, doneButton, deleteButton, controlButton, timerButton);
 
@@ -96,8 +94,13 @@ export function taskShowDomElement(taskTitle, taskTime, taskStatus, taskDescript
     container.append(
         createTaskShowField(TASK_SHOW_LABELS.title, taskTitle, ['task-show-value-title']),
         createTaskShowField(TASK_SHOW_LABELS.time, `${taskTime}s`, ['task-show-value-time']),
-        createTaskShowField(TASK_SHOW_LABELS.status, statusText, ['task-show-value-status', statusClass]),
-        createTaskShowField(TASK_SHOW_LABELS.description, taskDescription || '—', ['task-show-value-description'])
+        createTaskShowField(TASK_SHOW_LABELS.status, statusText, [
+            'task-show-value-status',
+            statusClass,
+        ]),
+        createTaskShowField(TASK_SHOW_LABELS.description, taskDescription || '—', [
+            'task-show-value-description',
+        ])
     );
 
     return container;

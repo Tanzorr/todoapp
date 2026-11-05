@@ -34,4 +34,3 @@ export function initPageAction() {
         window.location.href = 'add.html';
     });
 }
-

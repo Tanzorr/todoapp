@@ -49,4 +49,3 @@ export async function stopTimer(taskId) {
 export async function getTimerTotal(taskId) {
     return apiFetch(`/tasks/${taskId}/timer`);
 }
-
