@@ -8,6 +8,9 @@ export const DOCS = {
     refPattern: /\b(?:[VISQ]-\d+|TASK-\d{3}|ADR-\d{3})\b/,
     statusOrder: ['in-progress', 'blocked', 'planned', 'done'],
     pageSize: 6,
+    // A ticket file shown whole (ticket-view.js): `guide` is the heading of the table that says
+    // what each field and part tells a reader; `folded` parts start closed.
+    tickets: { file: 'backlog/INDEX.md', guide: 'Reading a Ticket', folded: ['Notes'] },
     sections: [
         {
             id: 'value',

@@ -2,7 +2,7 @@
 // show the section the URL hash names, or a whole `.ai/` file at `#file/<path>`.
 import { browse } from './browse.js';
 import { DOCS } from './config.js';
-import { el, errorNode, FILE_ROUTE, fileLink, linkConcepts, markMissingRefs } from './dom.js';
+import { el, errorNode, FILE_ROUTE, fileLink, linkConcepts, resolveRefs } from './dom.js';
 import { fileView } from './file-view.js';
 import { toLines } from './md-blocks.js';
 import { RENDERERS } from './sections.js';
@@ -103,7 +103,7 @@ function main() {
     });
     const ready = Promise.all(rendered).then(() => {
         linkConcepts(content);
-        markMissingRefs(content);
+        resolveRefs(content);
     });
     const viewer = fileView(load, ready, content);
     content.append(viewer.node);

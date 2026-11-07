@@ -823,6 +823,101 @@ a.ref.ref-missing {
     padding-left: 0;
 }
 
+/* ── Ticket (ticket-view.js): facts, what each part tells the reader, progress, folds ── */
+.ticket-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+    gap: 10px;
+    margin: 0 0 8px;
+}
+
+.fact {
+    padding: 10px 14px;
+    background: color-mix(in srgb, var(--tone) 6%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--tone) 25%, var(--border));
+    border-radius: var(--radius);
+}
+
+.fact dt {
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.fact dd {
+    margin: 2px 0 0;
+    font-weight: 600;
+}
+
+/* `--status` comes from the board's `.status-*` classes; an unknown status keeps the tone. */
+.fact-status {
+    grid-column: 1 / -1;
+    border-left: 4px solid var(--status, var(--tone));
+}
+
+.fact-status dd code {
+    background: color-mix(in srgb, var(--status, var(--tone)) 18%, transparent);
+    color: var(--status, var(--tone));
+    font-weight: 700;
+}
+
+.hint {
+    display: block;
+    font-size: 0.84rem;
+    font-weight: 400;
+    color: var(--muted);
+}
+
+.fact .hint {
+    margin-top: 4px;
+}
+
+.ticket-part > .hint,
+.ticket-part > summary .hint {
+    margin: -6px 0 12px;
+}
+
+.progress {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    align-items: center;
+    font-size: 0.84rem;
+    color: var(--muted);
+}
+
+.progress-bar {
+    flex: 0 1 240px;
+    height: 8px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--sunken);
+}
+
+.progress-fill {
+    display: block;
+    height: 100%;
+    background: var(--tone);
+}
+
+details.ticket-part > summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+details.ticket-part > summary::-webkit-details-marker {
+    display: none;
+}
+
+details.ticket-part > summary h3::before {
+    content: '▸ ';
+}
+
+details.ticket-part[open] > summary h3::before {
+    content: '▾ ';
+}
+
 /* A box stated by the file: read-only, and a ticked item stays readable. */
 .checklist label:has(input:disabled) {
     cursor: default;

@@ -231,11 +231,19 @@ export function linkConcepts(root, page = root) {
     }
 }
 
-// Links to an id no card carries are marked, so a stale reference is visible on the page.
-export function markMissingRefs(root) {
+// A link to a card shows the card's title on hover. Links to an id no card carries are marked,
+// so a stale reference is visible on the page.
+export function resolveRefs(root) {
     for (const link of root.querySelectorAll('a.ref')) {
-        if (document.getElementById(link.getAttribute('href').slice(1))) continue;
-        link.classList.add('ref-missing');
-        link.title = 'No card with this id on the page';
+        const target = document.getElementById(link.getAttribute('href').slice(1));
+        if (!target) {
+            link.classList.add('ref-missing');
+            link.title = 'No card with this id on the page';
+            continue;
+        }
+        const text = target.matches('.card')
+            ? target.querySelector('.card-title, p')?.textContent.replace(/\s+/g, ' ').trim()
+            : '';
+        if (text && !link.title) link.title = text.length > 160 ? `${text.slice(0, 159)}…` : text;
     }
 }

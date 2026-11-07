@@ -1,17 +1,10 @@
 // file-view.js — one markdown file under `.ai/`, rendered whole at `#file/<path>`; a heading slug
 // after a second `#` scrolls to that heading. dom.js `viewHref` sends `.md` links here.
 import { DOCS } from './config.js';
-import {
-    blocksNode,
-    el,
-    errorNode,
-    inline,
-    linkConcepts,
-    markMissingRefs,
-    viewHref,
-} from './dom.js';
+import { blocksNode, el, errorNode, inline, linkConcepts, resolveRefs, viewHref } from './dom.js';
 import { parseBlocks } from './md-blocks.js';
 import { plainText } from './md-inline.js';
+import { isTicket, readGuide, ticketNode } from './ticket-view.js';
 
 const ROOT = new URL(DOCS.root, window.location.href);
 
@@ -51,7 +44,11 @@ export function fileView(load, ready, page) {
         body.replaceChildren(el('p', 'muted', 'Loading…'));
         try {
             if (!viewHref(url)) throw new Error(`Not a .md file under .ai/: ${path}`);
-            const [doc] = await Promise.all([load(path), ready]);
+            const [doc, guideDoc] = await Promise.all([
+                load(path),
+                load(DOCS.tickets.file).catch(() => null),
+                ready,
+            ]);
             if (current !== path) return;
             const blocks = parseBlocks(doc.lines);
             const top = blocks.find((block) => block.type === 'heading' && block.level === 1);
@@ -60,9 +57,13 @@ export function fileView(load, ready, page) {
                 heading.replaceChildren(inline(top.text, doc.url));
             }
             const rest = blocks.filter((block) => block !== top);
-            body.replaceChildren(blocksNode(rest, doc.url, { shift: 1 }));
+            body.replaceChildren(
+                isTicket(rest)
+                    ? ticketNode(rest, doc.url, guideDoc && readGuide(guideDoc))
+                    : blocksNode(rest, doc.url, { shift: 1 })
+            );
             linkConcepts(body, page);
-            markMissingRefs(body);
+            resolveRefs(body);
         } catch (err) {
             body.replaceChildren(errorNode(err.message));
         }

@@ -30,6 +30,7 @@ const STATUS = /^`([^`]+)`\s*(?:[—–-]\s*)?(.*)$/;
 const PLACEHOLDER = /^[—–-]?$/;
 const PAGE_COLUMNS = ['Page', 'Parent', 'Purpose', 'Goes to'];
 const CONCEPT_COLUMNS = ['Concept', 'Persisted', 'Meaning'];
+const TICKET_LINK = 'Read the ticket →';
 const RELATION = /^\s*(\w+)\s*--(\w+)-->\s*(\w+)\s*(?:\((.*)\))?\s*$/;
 const DOCS_PAGE = new URL('index.html', window.location.href).href;
 
@@ -270,7 +271,7 @@ function ticketCard(ticket, indexUrl) {
         );
     }
     if (ticket.error) node.append(el('p', 'warn', ticket.error));
-    if (ticket.url) node.append(el('footer', 'card-foot', fileLink(ticket.url)));
+    if (ticket.url) node.append(el('footer', 'card-foot', fileLink(ticket.url, TICKET_LINK)));
     return node;
 }
 
@@ -317,7 +318,15 @@ async function archive(section, load) {
         '',
         ...parts.map(({ title, table }) => {
             const rows = realRows(table);
-            const cards = rows.map((cells) => rowCard(table.headers, cells, doc.url));
+            const cards = rows.map((cells) => {
+                const node = rowCard(table.headers, cells, doc.url);
+                const link = firstLink(cells[0]);
+                if (link) {
+                    const url = new URL(link.href, doc.url).href;
+                    node.append(el('footer', 'card-foot', fileLink(url, TICKET_LINK)));
+                }
+                return node;
+            });
             return part(title, doc.url, cards.length ? grid(cards) : el('p', 'muted', 'None yet.'));
         })
     );
