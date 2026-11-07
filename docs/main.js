@@ -2,7 +2,7 @@
 // show the section the URL hash names.
 import { browse } from './browse.js';
 import { DOCS } from './config.js';
-import { el, errorNode, fileLink, markMissingRefs } from './dom.js';
+import { el, errorNode, fileLink, linkConcepts, markMissingRefs } from './dom.js';
 import { toLines } from './md-blocks.js';
 import { RENDERERS } from './sections.js';
 
@@ -48,7 +48,8 @@ function navLink(section) {
 async function renderSection(section, body) {
     try {
         body.append(await RENDERERS[section.kind](section, load));
-        reveals.set(section.id, browse(body, { pageSize: DOCS.pageSize, label: section.title }));
+        const pageSize = section.pageSize ?? DOCS.pageSize;
+        reveals.set(section.id, browse(body, { pageSize, label: section.title }));
     } catch (err) {
         body.append(errorNode(err.message));
     }
@@ -91,6 +92,7 @@ function main() {
     window.addEventListener('hashchange', show);
     show();
     Promise.all(rendered).then(() => {
+        linkConcepts(content);
         markMissingRefs(content);
         status.textContent = `Read ${files.size} files at ${new Date().toLocaleTimeString()}.`;
         show();

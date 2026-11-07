@@ -167,3 +167,14 @@ hiding Start on it (TASK-020) would leave no way to stop it. Cost: `tasks.servic
 imports `timer.repository`; reopening does not resume the Timer; closing and
 updating are two statements, so a failure between them leaves a stopped Timer on
 a Task that is not done, which a retry fixes.
+
+### ADR-014 — Entity cards are assembled from existing files and linked by name
+**2026-11-07 · Accepted** (TASK-022). `#entities` builds one card per concept from
+`ontology.md` (Concepts, Relations, Invariants, Open Questions) and `## Concept → Code`
+above; a rule belongs to a card when it names the concept as a whole word. After
+render, any `code` or bold span whose text is a concept name links to its card.
+Rejected: an `entities.md` per concept — a second copy of the ontology to keep in
+step; a list of names in `docs/config.js` — the same, for the names. Cost: the
+`Relations` block becomes a contract (`A --verb--> B (note)`); a rule naming a concept
+only in lowercase prose is not listed; a `code` span that equals a concept name by
+chance is linked.

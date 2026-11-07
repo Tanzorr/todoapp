@@ -25,6 +25,12 @@ export function refLink(id, ...label) {
     return link;
 }
 
+export function conceptLink(name, ...label) {
+    const link = refLink(name, ...label);
+    link.classList.add('ref-concept');
+    return link;
+}
+
 function safeUrl(href, base) {
     try {
         const url = new URL(href, base);
@@ -176,6 +182,18 @@ export function part(title, base, ...children) {
 
 export function errorNode(message) {
     return el('p', 'error', message);
+}
+
+// A `code` or bold span whose whole text names a concept card links to that card. Runs once every
+// section has rendered, so a span reaches a card in another section.
+export function linkConcepts(root) {
+    const cards = root.querySelectorAll('[data-concept]');
+    const names = new Set([...cards].map((node) => node.dataset.concept));
+    for (const span of root.querySelectorAll('code, strong')) {
+        const name = span.textContent.trim();
+        if (!names.has(name) || span.closest('a, pre')) continue;
+        span.replaceWith(conceptLink(name, span.cloneNode(true)));
+    }
 }
 
 // Links to an id no card carries are marked, so a stale reference is visible on the page.

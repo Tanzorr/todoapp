@@ -4,6 +4,7 @@ import { DOCS } from './config.js';
 import {
     blocksNode,
     card,
+    conceptLink,
     el,
     fieldList,
     fileLink,
@@ -28,6 +29,8 @@ import { findTables, hasColumns, toRecords } from './md-table.js';
 const STATUS = /^`([^`]+)`\s*(?:[—–-]\s*)?(.*)$/;
 const PLACEHOLDER = /^[—–-]?$/;
 const PAGE_COLUMNS = ['Page', 'Parent', 'Purpose', 'Goes to'];
+const CONCEPT_COLUMNS = ['Concept', 'Persisted', 'Meaning'];
+const RELATION = /^\s*(\w+)\s*--(\w+)-->\s*(\w+)\s*(?:\((.*)\))?\s*$/;
 const DOCS_PAGE = new URL('index.html', window.location.href).href;
 
 function sectionLines(doc, title) {
@@ -92,6 +95,127 @@ async function ontology(section, load) {
             doc.url,
             grid(listIn(doc, questions).map((item) => leadCard(item, doc.url)))
         )
+    );
+}
+
+// `Task --hasTimer--> Timer (note)` lines; a line that does not read as one is kept, to be shown.
+function relationsIn(doc, title) {
+    const code = firstBlock(sectionLines(doc, title), 'code');
+    if (!code) throw new Error(`No code block under "${title}" in ${doc.url}`);
+    const lines = code.text.split('\n').filter((line) => line.trim());
+    return {
+        relations: lines
+            .map((line) => RELATION.exec(line))
+            .filter(Boolean)
+            .map(([, from, verb, to, note = '']) => ({ from, verb, to, note })),
+        unread: lines.filter((line) => !RELATION.test(line)),
+    };
+}
+
+// Invariant rows and open-question items, each as `{ id, text }`.
+function rulesIn(doc, { invariants, questions }) {
+    const rows = tableIn(doc, invariants).rows.map(([id, text = '']) => ({
+        id: plainText(id),
+        text,
+    }));
+    const items = listIn(doc, questions)
+        .map(splitBoldLead)
+        .filter(Boolean)
+        .map(({ lead, rest }) => ({ id: plainText(lead), text: rest }));
+    return [...rows, ...items];
+}
+
+// Whole word, singular or plural: "Task" matches "Tasks" but not "TaskItem"; "TimeEntry" matches
+// "TimeEntries". Case counts, so "per task" does not name Task.
+function namesConcept(text, name) {
+    const word = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const plural = word.endsWith('y') ? `${word.slice(0, -1)}ies` : `${word}s`;
+    return new RegExp(`\\b(?:${word}|${plural})\\b`).test(plainText(text));
+}
+
+function relationItem(relation, name) {
+    const end = (other) =>
+        other === name ? el('span', 'relation-self', other) : conceptLink(other);
+    return el(
+        'li',
+        '',
+        end(relation.from),
+        el('span', 'relation-verb', relation.verb),
+        end(relation.to),
+        relation.note ? el('span', 'relation-note', relation.note) : null
+    );
+}
+
+function entityCard(concept, model, base) {
+    const name = plainText(concept.Concept).trim();
+    const relations = model.relations.filter(({ from, to }) => from === name || to === name);
+    const rules = model.rules.filter((rule) => namesConcept(rule.text, name));
+    const code = model.code.get(name);
+    const fields = el('dl', 'fields fields-stacked');
+    const field = (label, value) => {
+        if (value) fields.append(el('dt', '', label), el('dd', '', value));
+    };
+    field('Persisted', inline(concept.Persisted, base));
+    field('Lives as', code === undefined ? null : inline(code, model.codeUrl));
+    field(
+        'Relations',
+        relations.length
+            ? el('ul', 'relations', ...relations.map((relation) => relationItem(relation, name)))
+            : null
+    );
+    field(
+        'Rules',
+        rules.length
+            ? el(
+                  'ul',
+                  'rules',
+                  ...rules.map((rule) =>
+                      el('li', '', refLink(rule.id), ' ', inline(rule.text, base))
+                  )
+              )
+            : null
+    );
+    const node = card(name, el('p', 'card-title', inline(concept.Meaning, base)), fields);
+    if (code === undefined) {
+        node.append(el('p', 'warn', `No “${name}” row under “${model.codeTitle}”`));
+    }
+    node.id = name;
+    node.dataset.concept = name;
+    return node;
+}
+
+// One card per Concepts row, gathering what ontology.md and Concept → Code say about it.
+async function entities(section, load) {
+    const [doc, codeDoc] = await Promise.all([load(section.file), load(section.code.file)]);
+    const { concepts, relations, invariants, questions } = section.parts;
+    const table = tableIn(doc, concepts);
+    if (!hasColumns(table, CONCEPT_COLUMNS)) {
+        throw new Error(
+            `The "${concepts}" table in ${doc.url} needs ${CONCEPT_COLUMNS.join(', ')}`
+        );
+    }
+    const read = relationsIn(doc, relations);
+    const model = {
+        relations: read.relations,
+        rules: rulesIn(doc, { invariants, questions }),
+        code: new Map(
+            tableIn(codeDoc, section.code.part).rows.map(([name, lives = '']) => [
+                plainText(name).trim(),
+                lives,
+            ])
+        ),
+        codeUrl: codeDoc.url,
+        codeTitle: section.code.part,
+    };
+    const rows = toRecords({ ...table, rows: realRows(table) });
+    return el(
+        'div',
+        '',
+        grid(
+            rows.map((row) => entityCard(row, model, doc.url)),
+            'grid-wide'
+        ),
+        ...read.unread.map((line) => el('p', 'warn', `Not read as a relation: ${line.trim()}`))
     );
 }
 
@@ -364,6 +488,7 @@ async function sitemap(section, load) {
 export const RENDERERS = {
     value,
     ontology,
+    entities,
     backlog,
     archive,
     conventions,

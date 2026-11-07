@@ -1,7 +1,7 @@
 // config.js — the one map from `.ai/` files to page sections. Paths are relative to `root`;
 // `parts` name the headings a section reads, matched without their numbering. Each section is
 // its own page at `#<id>`; a list longer than `pageSize` is paged, and a section with more
-// items than that gets a search box.
+// items than that gets a search box. A section's own `pageSize` wins over the shared one.
 
 export const DOCS = {
     root: '../.ai/',
@@ -22,6 +22,20 @@ export const DOCS = {
             kind: 'ontology',
             file: 'context/ontology.md',
             parts: { concepts: 'Concepts', invariants: 'Invariants', questions: 'Open Questions' },
+        },
+        {
+            id: 'entities',
+            title: 'Entities',
+            kind: 'entities',
+            file: 'context/ontology.md',
+            parts: {
+                concepts: 'Concepts',
+                relations: 'Relations',
+                invariants: 'Invariants',
+                questions: 'Open Questions',
+            },
+            code: { file: 'context/architecture.md', part: 'Concept → Code' },
+            pageSize: 12,
         },
         {
             id: 'backlog',

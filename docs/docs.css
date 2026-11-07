@@ -20,6 +20,7 @@
     --c-value: #a15c00;
     --c-criteria: #4d7c0f;
     --c-ontology: #6d3fd1;
+    --c-entities: #a21caf;
     --c-question: #c2410c;
     --c-backlog: #1f5bd1;
     --c-archive: #0b7f6b;
@@ -51,6 +52,7 @@
         --c-value: #f5b942;
         --c-criteria: #a3e05f;
         --c-ontology: #b79cff;
+        --c-entities: #e879f9;
         --c-question: #ff9e64;
         --c-backlog: #7cabff;
         --c-archive: #3fd8b8;
@@ -249,6 +251,11 @@ pre code {
 #ontology,
 .docs-nav a[href='#ontology'] {
     --tone: var(--c-ontology);
+}
+
+#entities,
+.docs-nav a[href='#entities'] {
+    --tone: var(--c-entities);
 }
 
 #backlog,
@@ -509,6 +516,10 @@ a.ref[href^='#ADR-'] {
     --ref: var(--c-architecture);
 }
 
+a.ref-concept {
+    --ref: var(--c-entities);
+}
+
 a.ref.ref-missing {
     --ref: var(--muted);
     background: none;
@@ -687,6 +698,55 @@ a.ref.ref-missing {
 
 .method-delete {
     --method: var(--delete);
+}
+
+/* ── Entities ── */
+.card[data-concept] .card-head {
+    font-size: 1.05rem;
+}
+
+.relations,
+.rules {
+    display: grid;
+    gap: 6px;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.card .relations,
+.card .rules {
+    padding-left: 0;
+}
+
+.relations li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 6px;
+    align-items: baseline;
+}
+
+.relation-self {
+    font-weight: 700;
+}
+
+.relation-verb {
+    font: 0.8rem var(--mono);
+    color: var(--muted);
+}
+
+.relation-verb::before {
+    content: '—';
+}
+
+.relation-verb::after {
+    content: '→';
+}
+
+.relation-note {
+    flex-basis: 100%;
+    font-size: 0.8rem;
+    color: var(--muted);
 }
 
 /* ── Site map ── */
