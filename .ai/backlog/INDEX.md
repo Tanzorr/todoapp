@@ -16,6 +16,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
 | [TASK-020](TASK-020-redesign-task-pages.md) | Redesign the task pages | `planned` | P2 | V-3, V-1 | TASK-011, TASK-015 |
 | [TASK-021](TASK-021-implement-task-pages-redesign.md) | Implement the task-pages redesign | `planned` | P2 | V-3, V-1 | TASK-011, TASK-012, TASK-015 |
 | [TASK-022](TASK-022-docs-entities-page.md) | Entities page on the docs site | `in-progress` | P2 | V-4 | TASK-018 |
+| [TASK-023](TASK-023-docs-file-view.md) | Docs: open any `.ai/` markdown file rendered | `in-progress` | P2 | V-4 | TASK-018 |
 
 ## Order
 
@@ -27,7 +28,8 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
      └─► 014
 013  (independent, do first)
 017 ───► 018 ─┬─► 019
-              └─► 022
+              ├─► 022
+              └─► 023
 ```
 
 020 is the spec and 021 builds it; both close together.

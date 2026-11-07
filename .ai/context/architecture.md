@@ -178,3 +178,12 @@ step; a list of names in `docs/config.js` — the same, for the names. Cost: the
 `Relations` block becomes a contract (`A --verb--> B (note)`); a rule naming a concept
 only in lowercase prose is not listed; a `code` span that equals a concept name by
 chance is linked.
+
+### ADR-015 — `.ai/` files open rendered in the docs page, at `#file/<path>`
+**2026-11-07 · Accepted** (TASK-023). A link to a `.md` under `.ai/` opens a view
+of that file on the docs page, with the markdown reader every section uses;
+`#file/<path>#<heading>` scrolls to a heading. Rejected: a second page,
+`file.html?path=` — refs and concept names in the file would link to cards it does
+not have (ADR-011's reason again); a markdown library — a dependency (ADR-003).
+Cost: a raw `.md` opened by its own URL stays unstyled; only the view's source link
+reaches the raw text; a file loads once per page load, so an edit needs a reload.

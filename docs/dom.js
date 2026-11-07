@@ -4,7 +4,29 @@ import { parseInline, plainText, tokensText } from './md-inline.js';
 
 const REF_SPLIT = new RegExp(`(${DOCS.refPattern.source})`);
 const REF_ONLY = new RegExp(`^(?:${DOCS.refPattern.source})$`);
+const TASK_ITEM = /^\[([ xX])\]\s+([\s\S]*)$/;
+const ROOT = new URL(DOCS.root, window.location.href).href;
 const usedIds = new Set();
+
+export const FILE_ROUTE = 'file/';
+
+// A `.md` file under `.ai/` opens rendered on this page (file-view.js); null for any other URL.
+export function viewHref(href) {
+    const url = new URL(href);
+    const anchor = url.hash;
+    url.hash = '';
+    if (!url.href.startsWith(ROOT) || !url.pathname.endsWith('.md')) return null;
+    return `#${FILE_ROUTE}${url.href.slice(ROOT.length)}${anchor}`;
+}
+
+// GitHub's heading anchors: "Step 1 — Page shell" → "step-1--page-shell".
+export function slug(source) {
+    return plainText(source)
+        .trim()
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}\s_-]/gu, '')
+        .replace(/\s/g, '-');
+}
 
 export function el(tag, className, ...children) {
     const node = document.createElement(tag);
@@ -47,7 +69,7 @@ function linkNode(token, base) {
     const url = safeUrl(token.href, base);
     if (!url) return el('span', '', ...label);
     const link = el('a', '', ...label);
-    link.href = url;
+    link.href = viewHref(url) ?? url;
     return link;
 }
 
@@ -80,16 +102,24 @@ export function inline(source, base) {
     return fragment;
 }
 
+// A `[ ]` / `[x]` item states its box, which cannot be clicked; a `checklist` box is the reader's.
 function listNode(block, base, checklist) {
-    const list = el(block.ordered ? 'ol' : 'ul', checklist ? 'checklist' : '');
+    const boxes = checklist || block.items.every((item) => TASK_ITEM.test(item));
+    const list = el(block.ordered ? 'ol' : 'ul', boxes ? 'checklist' : '');
     for (const item of block.items) {
-        if (!checklist) {
+        if (!boxes) {
             list.append(el('li', '', inline(item, base)));
             continue;
         }
+        const task = TASK_ITEM.exec(item);
         const box = el('input');
         box.type = 'checkbox';
-        list.append(el('li', '', el('label', '', box, el('span', '', inline(item, base)))));
+        if (task) {
+            box.checked = task[1] !== ' ';
+            box.disabled = true;
+        }
+        const text = inline(task ? task[2] : item, base);
+        list.append(el('li', '', el('label', '', box, el('span', '', text))));
     }
     return list;
 }
@@ -106,11 +136,16 @@ export function tableNode({ headers, rows }, base) {
     );
 }
 
-export function blocksNode(blocks, base, { checklist = false } = {}) {
+// `shift` is added to a heading's level. A heading's slug is `data-slug`, not its id, so a
+// "## Architecture" cannot shadow the `#architecture` section.
+export function blocksNode(blocks, base, { checklist = false, shift = 2 } = {}) {
     const fragment = document.createDocumentFragment();
     for (const block of blocks) {
         if (block.type === 'heading') {
-            fragment.append(el(`h${Math.min(block.level + 2, 6)}`, '', inline(block.text, base)));
+            const level = Math.min(block.level + shift, 6);
+            const heading = el(`h${level}`, '', inline(block.text, base));
+            heading.dataset.slug = slug(block.text);
+            fragment.append(heading);
         } else if (block.type === 'paragraph') {
             fragment.append(el('p', '', inline(block.text, base)));
         } else if (block.type === 'quote') {
@@ -152,7 +187,7 @@ export function fieldList(pairs, base, className = 'fields') {
 
 export function fileLink(url, label) {
     const link = el('a', 'source', label ?? decodeURI(new URL(url).pathname.split('/').pop()));
-    link.href = url;
+    link.href = viewHref(url) ?? url;
     return link;
 }
 
@@ -184,10 +219,10 @@ export function errorNode(message) {
     return el('p', 'error', message);
 }
 
-// A `code` or bold span whose whole text names a concept card links to that card. Runs once every
-// section has rendered, so a span reaches a card in another section.
-export function linkConcepts(root) {
-    const cards = root.querySelectorAll('[data-concept]');
+// A `code` or bold span in `root` whose whole text names a concept card in `page` links to that
+// card. Runs once every section has rendered, so a span reaches a card in another section.
+export function linkConcepts(root, page = root) {
+    const cards = page.querySelectorAll('[data-concept]');
     const names = new Set([...cards].map((node) => node.dataset.concept));
     for (const span of root.querySelectorAll('code, strong')) {
         const name = span.textContent.trim();
