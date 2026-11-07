@@ -10,11 +10,21 @@
 <header class="site-header">
     <div class="site-header-inner">
         <a class="site-name" href="index.html">My todo</a>
+        <span class="running-count" hidden>
+            <span class="dot"></span>
+            <span class="running-label"></span>
+        </span>
     </div>
 </header>
 <main class="page-main">
     <a class="edit-task-btn btn" href="./add.html">add page</a>
-    <div class="items-container">
+    <div class="list-card">
+        <div class="items-container"></div>
+        <div class="list-total" hidden>
+            <span class="list-total-label">Total</span>
+            <span class="list-total-value"></span>
+            <span class="list-total-spacer"></span>
+        </div>
     </div>
 </main>
 <footer class="site-footer">2025 alex@ukr.net</footer>

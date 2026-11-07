@@ -1,12 +1,19 @@
 //constants.js
 export const MAX_TASK_LENGTH = 200;
 
+export const TASKS_CHANGED = 'tasks-changed';
+
 export const BUTTON_TEXT = {
-    edit: 'edit',
-    done: 'done',
-    delete: 'delete',
     start: 'Start',
     stop: 'Stop',
+};
+
+export const ARIA_LABELS = {
+    done: (title) => `Mark ${title} as done`,
+    start: (title) => `Start timer for ${title}`,
+    stop: (title) => `Stop timer for ${title}`,
+    edit: (title) => `Edit ${title}`,
+    delete: (title) => `Delete ${title}`,
 };
 
 export const ICONS = {
@@ -53,4 +60,7 @@ export const ALERTS = {
     emptyTask: 'Enter a task title.',
     maxLength: `Title can be at most ${MAX_TASK_LENGTH} characters.`,
     serverDown: "The server isn't responding. Check that it's running, then try again.",
+    startFailed: "Couldn't start the timer.",
+    stopFailed: "Couldn't stop the timer.",
+    doneFailed: "Couldn't update the task.",
 };

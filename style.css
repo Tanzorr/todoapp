@@ -197,9 +197,308 @@ a:focus-visible, button:focus-visible, input:focus, textarea:focus {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    * {
+    *, *::before, *::after {
         animation: none !important;
         transition: none !important;
+    }
+}
+
+/* In flight: the label gives way to a spinner */
+.btn.is-busy {
+    position: relative;
+    background: var(--surface-busy);
+    border-color: var(--line-control);
+    color: transparent;
+    cursor: progress;
+}
+
+.btn.is-busy > * {
+    visibility: hidden;
+}
+
+.btn.is-busy::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 18px;
+    height: 18px;
+    margin: auto;
+    border: 2.4px solid var(--ink-soft);
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Pulsing dot of a running Timer */
+.dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--ink);
+    animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    50% {
+        opacity: 0.25;
+    }
+}
+
+/* Dismissible failure message */
+.error-slot:empty {
+    display: none;
+}
+
+.inline-error {
+    padding: 4px 4px 4px 16px;
+    border: 1px solid var(--danger-line);
+    border-radius: 12px;
+    background: var(--danger-soft);
+    color: var(--danger-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.inline-error > svg {
+    flex: none;
+}
+
+.inline-error-text {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.inline-error-dismiss {
+    background: transparent;
+    color: inherit;
+}
+
+.inline-error-dismiss:hover {
+    background: rgba(0, 0, 0, 0.07);
+}
+
+/* List page */
+.running-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--gold);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.running-count .dot {
+    background: var(--gold);
+}
+
+.list-card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    overflow: hidden;
+}
+
+.task-item {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+}
+
+.task-item.is-running {
+    background: color-mix(in srgb, var(--gold) 16%, var(--surface));
+}
+
+.task-main {
+    flex: 1 1 260px;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.done-toggle {
+    background: transparent;
+}
+
+.check-box {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--line-control);
+    border-radius: 6px;
+    background: var(--surface);
+    color: #fff;
+    display: grid;
+    place-items: center;
+}
+
+.check-box svg {
+    visibility: hidden;
+}
+
+.is-done .check-box {
+    border-color: var(--ink);
+    background: var(--ink);
+}
+
+.is-done .check-box svg {
+    visibility: visible;
+}
+
+.task-title {
+    min-width: 0;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 17px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.task-title:hover {
+    text-decoration: underline;
+}
+
+.is-done .task-title {
+    color: var(--ink-muted);
+    text-decoration: line-through;
+}
+
+.task-controls {
+    margin-left: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.task-time-slot {
+    width: 128px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.task-time {
+    padding: 6px 10px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 17px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.is-done .task-time {
+    color: var(--ink-muted);
+}
+
+.is-running .task-time {
+    background: var(--gold);
+}
+
+.timer-btn {
+    width: 88px;
+    padding: 0;
+}
+
+.is-done:not(.is-running) .task-controls .timer-btn {
+    visibility: hidden;
+}
+
+.task-item .error-slot {
+    flex-basis: 100%;
+    margin: 4px 0 2px;
+}
+
+.list-total {
+    padding: 14px 12px;
+    background: var(--surface-foot);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.list-total-label {
+    flex: 1;
+    padding-left: 48px;
+    color: var(--ink-soft);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.list-total-value {
+    width: 128px;
+    padding-right: 10px;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 17px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.list-total-spacer {
+    width: 188px;
+    flex-shrink: 1;
+}
+
+@media (max-width: 599px) {
+    .task-main {
+        flex-basis: 100%;
+    }
+
+    .task-controls {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .task-time-slot {
+        width: auto;
+        flex: 1;
+        min-width: 0;
+        justify-content: flex-start;
+    }
+
+    .task-time {
+        font-size: 16px;
+    }
+
+    .is-done:not(.is-running) .task-controls .timer-btn {
+        display: none;
+    }
+
+    .list-total {
+        padding: 12px 19px;
+    }
+
+    .list-total-label {
+        padding-left: 0;
+    }
+
+    .list-total-value {
+        width: auto;
+        padding-right: 0;
+        font-size: 16px;
+    }
+
+    .list-total-spacer {
+        display: none;
     }
 }
 
@@ -305,64 +604,9 @@ a:focus-visible, button:focus-visible, input:focus, textarea:focus {
     flex-direction: column;
 }
 
-.items-container{
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    align-items: center;
-}
-
-/* Make list items look like the show page card */
-.task-item {
-    width: 100%;
-    max-width: 720px;
-    padding: 18px 22px;
-    border: 1px solid #d9d9d9;
-    border-radius: 12px;
-    background: #fafafa;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-}
-
 .row{
     display: flex;
     justify-content: space-between;
-}
-
-.task-item {
-    margin-left: 10px;
-}
-
-.task-controls{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* Smaller control buttons inside task list */
-.task-controls .btn{
-    background: #111;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-}
-
-/* Highlight delete button with a subtle warning color */
-.task-controls .btn:nth-child(3){
-    background: #222;
-    color: #f2c94c;
-}
-
-/* Task title in list */
-.task-tile{
-    font-size: 16px;
-    font-weight: 600;
-    color: #111;
-    padding-left: 12px;
-}
-
-.done {
-    text-decoration: line-through;
-    color: gray;
 }
 
 .error {

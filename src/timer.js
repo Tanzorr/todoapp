@@ -45,5 +45,5 @@ export function createTimer(taskId, initialSeconds, initiallyRunning, render) {
 
     show(initialSeconds, initiallyRunning);
 
-    return { toggle, sync, stop };
+    return { toggle, sync, stop, seconds: () => seconds, isRunning: () => isRunning };
 }
