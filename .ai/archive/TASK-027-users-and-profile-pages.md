@@ -2,7 +2,7 @@
 
 | Field | Value |
 | :--- | :--- |
-| **Status** | `in-progress` |
+| **Status** | `done` |
 | **Priority** | P2 |
 | **Value driver** | V-6 |
 | **Depends on** | TASK-025, TASK-026 |
@@ -77,7 +77,7 @@ invariant:
 
 ## Outcome
 
-**Completed:** 2026-11-21 — not committed yet.
+**Completed:** 2026-11-21 (`ade6e21`)
 **What was built:** Migration 005 (`name`, `role`); `modules/users/` with routes,
 controller, service and validation; `auth.service` exports `issueSession`,
 `hashPassword`, `verifyPassword`; `auth.validation` shares `emailSchema` and

@@ -31,6 +31,7 @@ are no ticket files here and outcomes come from the code and git history.
 | [TASK-015](TASK-015-one-title-rule.md) | One title-length rule on both sides | 2026-11-05 | V-3 | Add and edit share `taskValidation`: 1–200 chars after trim (I-6). Dead duplicate check removed, so no ADR. |
 | [TASK-011](TASK-011-timer-ui-follows-server.md) | Timer UI always matches the server | 2026-11-05 | V-1 | `done: true` closes the open TimeEntry server-side (ADR-013, Q-2); the row re-reads `GET …/timer` after every action and keeps ticking after a reload. |
 | [TASK-026](TASK-026-frontend-sign-in.md) | Sign-in page and tokens in the frontend | 2026-11-21 | V-6, V-3 | `login.html` signs in or registers; header shows the email and Sign out; the access token lives in memory and is renewed once per page load (ADR-019). |
+| [TASK-027](TASK-027-users-and-profile-pages.md) | Users page for the admin, and an editable profile page | 2026-11-21 | V-6 | `users.html` lists every User for the admin only; `user.html` changes your name, email, password or deletes the account, and shows others read-only to the admin (ADR-020, I-14). |
 
 ## How to Archive
 
