@@ -42,4 +42,13 @@ async function logout(req, res, next) {
     }
 }
 
-module.exports = { register, login, refresh, logout };
+async function me(req, res, next) {
+    try {
+        const user = await service.getCurrentUser(req.user.id);
+        res.json(user);
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { register, login, refresh, logout, me };

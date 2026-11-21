@@ -14,6 +14,7 @@ Router for `/api/auth` (D2 of TASK-025), mounted in `app.js`.
 | POST | `/login` | `authRateLimit` | `login` |
 | POST | `/refresh` | — | `refresh` |
 | POST | `/logout` | — | `logout` |
+| GET | `/me` | `authenticate` | `me` |
 
 ## Behavior / business rules
 
@@ -22,5 +23,5 @@ Router for `/api/auth` (D2 of TASK-025), mounted in `app.js`.
 
 ## Dependencies
 
-- **Imports:** `express`, `./auth.controller`, `../../middleware/rate-limit`
+- **Imports:** `express`, `./auth.controller`, `../../middleware/rate-limit`, `../../middleware/authenticate`
 - **Called by:** `app.js`
