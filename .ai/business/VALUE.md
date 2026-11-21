@@ -58,6 +58,7 @@ specs mean a beginner can follow a click from the button to the SQL.
 | **V-3** | Low friction | If tracking takes more effort than the work is worth, people stop tracking — and V-1 is never realised. | One-click controls per row, floating action button, short add form |
 | **V-4** | Learnable codebase | The project teaches how a browser app, an API and a database fit together. Hidden magic (frameworks, bundlers) would defeat that. | ADR-003: vanilla JS, no build; one responsibility per file |
 | **V-5** | Re-implementable, shareable backend | A written contract lets the backend be ported, reviewed, or handed over without reverse-engineering it. | `backend/specs/`, API conventions (ADR-007, ADR-008), code actually in git |
+| **V-6** | Private records | Where time went is personal. A list anyone with the URL can read or change is neither private nor trustworthy — someone else can stop your Timer. | `User` owns its Tasks (I-11); sign-in with rotating tokens (ADR-016, I-12, I-13) |
 
 ## 5. Requirements Traced to Value
 
@@ -77,6 +78,10 @@ So no feature exists without a reason, and no reason goes unbuilt.
 | Total time computed by the server, not the browser | **V-1** | Invariant **I-4** |
 | Runs from static files, no build | V-4 | ADR-003 |
 | Errors have one shape the UI can show | V-3, V-5 | `ApiError`, I-7 |
+| Register and sign in with email and password; sign out ends the session | V-6 | `User`, `RefreshToken`, I-12, I-13 |
+| See and change only your own Tasks and time | **V-6** | `User`, `Task`, Invariant **I-11** |
+| Change your own name, email and password, or delete your account | V-6 | `User`, I-12, I-14 |
+| An admin sees who has an account | V-6 | `User.role`, I-14 |
 
 The two rows that matter most are **I-2** and **I-4**. Together they make the
 tracked time a fact stored in the database rather than a counter running in a
@@ -98,8 +103,9 @@ Observable statements, checkable against a running system:
 
 Named explicitly so scope cannot creep in through the back door:
 
-- **Not** multi-user. No accounts, login or per-user isolation — adding them
-  changes the ontology (every `Task` gains an owner) and needs its own ADR.
+- **Not** a team tool. Each User sees only their own Tasks (V-6); no sharing,
+  teams, OAuth, password reset or email verification. The one role beyond `user`
+  is `admin`, who can read the list of Users and nothing more (I-14).
 - **Not** real-time. No WebSockets or SSE; a second tab sees changes on reload.
 - **Not** a framework app. No React/Vue, bundler or TypeScript — that would
   undo V-4.

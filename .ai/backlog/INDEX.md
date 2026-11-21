@@ -18,7 +18,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
 | [TASK-022](TASK-022-docs-entities-page.md) | Entities page on the docs site | `in-progress` | P2 | V-4 | TASK-018 |
 | [TASK-023](TASK-023-docs-file-view.md) | Docs: open any `.ai/` markdown file rendered | `in-progress` | P2 | V-4 | TASK-018 |
 | [TASK-024](TASK-024-tickets-for-readers.md) | A ticket reads clearly to someone who has never seen one | `in-progress` | P2 | V-4 | TASK-023 |
-
+| [TASK-025](TASK-025-users-and-auth.md) | Users: registration, sign-in and private Tasks | `in-progress` | P1 | V-6 | — |
 ## Order
 
 ```
@@ -28,6 +28,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
      │        └─► 016
      └─► 014
 013  (independent, do first)
+025 ───► 026 ───► 027   (025's test harness is reusable by 014)
 017 ───► 018 ─┬─► 019
               ├─► 022
               └─► 023 ───► 024
@@ -58,6 +59,7 @@ under that field or heading; a part added here appears there with no code change
 | Created | The day the ticket was written. |
 | Goal | What changes once it is done, in plain words. |
 | Ontology Touchpoints | Which things in the app's data model it touches, and which rules (`I-n`) must stay true. |
+| Decisions | Choices the owner confirms before building starts, each with the proposed answer. |
 | Acceptance Criteria | The checks that prove it is done. A ticked box has been checked by running it. |
 | Out of Scope | What it deliberately leaves out, so the work stays small. |
 | Notes | Working details for whoever builds it: files, traps, how it was checked. |

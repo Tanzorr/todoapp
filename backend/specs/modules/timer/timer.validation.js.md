@@ -2,31 +2,22 @@
 
 ## Purpose
 
-Input validation for timer endpoints. Validates task IDs passed in URL parameters.
+Validates the `:taskId` URL parameter of the timer routes with a `zod` schema, run through `lib/validate.js`.
 
 ## Exports
 
-- **`validateTaskId(id)`** (function): Validates a numeric task ID.
-  - **Parameters:** `id` (string or number): The value to validate.
-  - **Returns:** Parsed integer ID if valid.
-  - **Throws:** Error object with:
-    - `status`: `400`
-    - `message`: `"Invalid task id"`
-    - No `field` property.
+- **`validateTaskId(id)`**: Returns the id as an integer.
+  - **Throws:** `400` `Invalid task id`, no `field`.
 
 ## Behavior / business rules
 
-- **Parsing:** Converts the input to a base-10 integer.
-- **Constraints:**
-  - Must be a valid integer (not NaN, not a float).
-  - Must be greater than 0 (positive).
-- **On failure:** Throws immediately with a 400 error.
+- Parsed with `parseInt(id, 10)` first, then must be a positive integer — `'12abc'` is accepted as `12`; `'abc'`, `'0'` and `'-3'` are refused.
 
 ## Dependencies
 
-- **Imports:** None
-- **Depends on:** Called by `timer.controller.js` to validate the `:taskId` parameter.
+- **Imports:** `zod`, `../../lib/validate`
+- **Called by:** `timer.controller.js`
 
 ## Notes
 
-- The logic is identical to `tasks.validation.js`'s `validateId()`. A future refactor might extract this into a shared utility, but currently they are duplicated.
+- The same rule as `tasks.validation.js`'s `validateId()`, kept in each module.

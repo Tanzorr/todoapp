@@ -12,7 +12,10 @@ Browser  (index / add / edit / show .html)
   DOM factories   src/dom-elements.js                           create nodes, no fetch
   handlers        src/actions.js · src/action-button.js         click → API → DOM
   timer display   src/timer.js                                  per-TaskItem tick, start/stop
-  API adapter     src/api-client.js                             the only fetch() (I-7)
+  sign-in         src/login.js · auth-form.js · account.js      login page; header name, Users, sign out
+  users, profile  src/users.js · user.js · profile-forms.js     admin's list; own profile forms
+  API adapter     src/api-client.js                             the only fetch() (I-7); holds the
+                                                                access token in memory (ADR-019)
   config / rules  src/constants.js · src/validations.js · src/data.js
         │  HTTP JSON
         ▼
@@ -20,12 +23,16 @@ Node / Express  (backend/src)
   routes  →  controller  →  service  →  repository  →  db/pool.js  →  MySQL
               parse req      rules +      SQL only
               send res       validation   (I-10)
-  middleware/  not-found, error-handler → ApiError (I-7)
+  middleware/  authenticate (Bearer → req.user), rate-limit,
+               not-found, error-handler → ApiError (I-7)
+  modules/     auth · users · tasks · timer — every tasks/timer query takes userId (I-11)
         │  SQL with ? placeholders (mysql2 pool)
         ▼
-MySQL 8  (backend/src/db/migrations/001_init.sql)
-  tasks          id · title VARCHAR(200) · description NULL · done · created_at · updated_at
-  time_entries   id · task_id → tasks.id ON DELETE CASCADE · started_at · stopped_at NULL = open
+MySQL 8  (backend/src/db/migrations/, tracked in schema_migrations — ADR-017)
+  users           id · email UNIQUE · password_hash · created_at · updated_at
+  refresh_tokens  id · user_id → users.id CASCADE · token_hash UNIQUE · expires_at · revoked_at NULL
+  tasks           id · user_id → users.id CASCADE · title VARCHAR(200) · description NULL · done · …
+  time_entries    id · task_id → tasks.id ON DELETE CASCADE · started_at · stopped_at NULL = open
 ```
 
 **Dependencies point down only.** A repository never throws HTTP-shaped errors
@@ -37,11 +44,13 @@ calls `fetch`.
 Adding a Task, end to end:
 
 1. `add.html` submit → `src/add.js` → `createTask()` in `src/api-client.js` →
-   `POST /api/tasks` with `{ title, description }`.
-2. `tasks.routes.js` → `tasks.controller.js` reads the body → `tasks.service.js`
+   `POST /api/tasks` with `{ title, description }` and the access token (bought on
+   page load from the refresh cookie; none → `login.html`).
+2. `authenticate` checks the Bearer token and sets `req.user` (no token → `401`) →
+   `tasks.routes.js` → `tasks.controller.js` reads the body → `tasks.service.js`
    validates the title (I-6) → `tasks.repository.js`.
-3. MySQL runs `INSERT INTO tasks (title, description) VALUES (?, ?)` (I-10) and
-   returns the new `id`.
+3. MySQL runs `INSERT INTO tasks (user_id, title, description) VALUES (?, ?, ?)`
+   (I-10, I-11) and returns the new `id`.
 4. The controller answers `201` with the `Task`; `add.js` redirects to
    `index.html`, where `src/render.js` fetches the list and draws a TaskItem per Task.
 
@@ -55,14 +64,21 @@ Adding a Task, end to end:
 | `TrackedTime` | `timer.repository.getTotalSeconds()` (SQL `SUM(TIMESTAMPDIFF…)`) |
 | `TaskItem` | `render.addTodo()` + `dom-elements.createControls()`; `.stopTimer` property on the node |
 | `SelectedTask` | `src/data.js` (`saveTaskId` / `getTaskId`) |
-| `ApiError` | `backend/src/middleware/error-handler.js`; thrown as `Error` with `.status`, `.field` |
+| `ApiError` | `backend/src/middleware/error-handler.js`; thrown as `Error` with `.status`, `.field`; `code` derived from the status |
+| `User` | `users` table · `backend/src/modules/users/*` (admin check and current-password check in `users.service.js`) · `req.user` set by `middleware/authenticate.js` |
+| `RefreshToken` | `refresh_tokens` table · `backend/src/modules/auth/` (`auth.tokens.js` signs, `auth.repository.js` stores the hash, `auth.cookies.js` carries it) |
 
 ## API Surface
 
 | Method | Path | Success |
 | :--- | :--- | :--- |
 | GET | `/health` | 200 |
-| GET | `/api/tasks` | 200 `Task[]` |
+| POST | `/api/auth/register` | 201 `User` — body `{ email, password }` · 409 if taken · 429 after 5/min |
+| POST | `/api/auth/login` | 200 `{ accessToken, user }` + `refreshToken` cookie · 401 · 429 after 5/min |
+| POST | `/api/auth/refresh` | 200 `{ accessToken, user }` + new cookie · 401 |
+| POST | `/api/auth/logout` | 204, cookie cleared |
+| GET | `/api/auth/me` | 200 `User` (Bearer) |
+| GET | `/api/tasks` | 200 `Task[]` — the caller's only |
 | GET | `/api/tasks/:id` | 200 `Task` |
 | POST | `/api/tasks` | 201 `Task` — body `{ title, description? }` |
 | PUT | `/api/tasks/:id` | 200 `Task` — body `{ title?, description?, done? }`; `done: true` stops the Timer (ADR-013) |
@@ -70,8 +86,19 @@ Adding a Task, end to end:
 | GET | `/api/tasks/:id/timer` | 200 `{ taskId, totalSeconds, isRunning }` |
 | POST | `/api/tasks/:id/timer/start` | 201 · 409 if running |
 | POST | `/api/tasks/:id/timer/stop` | 200 `{ …, elapsedSeconds }` · 409 if stopped |
+| GET | `/api/users` | 200 `UserSummary[]` (`User` + `taskCount`) — admin only, else 404 (I-14) |
+| GET | `/api/users/me` | 200 own `UserSummary` |
+| GET | `/api/users/:id` | 200 `UserSummary` — yourself or an admin, else 404 |
+| PATCH | `/api/users/me` | 200 `User` — body `{ name }`, 0–80 chars |
+| PUT | `/api/users/me/email` | 200 `User` — body `{ email, currentPassword }` · 409 if taken |
+| PUT | `/api/users/me/password` | 200 `{ accessToken, user }` + new cookie — body `{ currentPassword, newPassword }`; every other session ends |
+| DELETE | `/api/users/me` | 204, cookie cleared — body `{ currentPassword }`; Tasks and time go with it |
 
-Errors: 400 invalid input, 404 missing task/route, 409 timer state, 500 otherwise.
+`User` is `{ id, email, name, role, createdAt }`. Every `/api/tasks` and `/api/users`
+route needs `Authorization: Bearer <accessToken>` (ADR-016).
+Errors: 400 invalid input or wrong current password, 401 no or bad token, 404
+missing task/route, another User's Task (I-11) or another User (I-14), 409 timer
+state or email taken, 429 rate limit, 500 otherwise.
 
 ## Site Map
 
@@ -80,10 +107,13 @@ the breadcrumbs.
 
 | Page | Parent | Purpose | Goes to |
 | :--- | :--- | :--- | :--- |
-| [`index.html`](../../index.html) | — | Task list: add, start / pause, done, delete | `add.html`, `show.html`, `edit.html` |
-| [`add.html`](../../add.html) | `index.html` | New Task form | `index.html` |
-| [`show.html`](../../show.html) | `index.html` | One Task's details; needs a `SelectedTask` | `edit.html`, `index.html` |
-| [`edit.html`](../../edit.html) | `index.html` | Change a Task; needs a `SelectedTask` | `index.html` |
+| [`index.html`](../../index.html) | — | Task list: add, start / pause, done, delete | `add.html`, `show.html`, `edit.html`, `login.html` |
+| [`add.html`](../../add.html) | `index.html` | New Task form | `index.html`, `login.html` |
+| [`show.html`](../../show.html) | `index.html` | One Task's details; needs a `SelectedTask` | `edit.html`, `index.html`, `login.html` |
+| [`edit.html`](../../edit.html) | `index.html` | Change a Task; needs a `SelectedTask` | `index.html`, `login.html` |
+| [`login.html`](../../login.html) | — | Sign in or create an account; every other task page sends you here without a session, and on sign-out | `index.html`, or the page named in `?next=` |
+| [`user.html`](../../user.html) | `index.html` | Your profile: name, email, password, delete account. `?id=` another User: read-only, admin only | `login.html` |
+| [`users.html`](../../users.html) | `index.html` | Every User, for the admin; anyone else sees a notice | `user.html`, `login.html` |
 | [`docs/index.html`](../../docs/index.html) | — | Renders `.ai/` | — |
 
 ## ADRs
@@ -187,3 +217,59 @@ of that file on the docs page, with the markdown reader every section uses;
 not have (ADR-011's reason again); a markdown library — a dependency (ADR-003).
 Cost: a raw `.md` opened by its own URL stays unstyled; only the view's source link
 reaches the raw text; a file loads once per page load, so an edit needs a reload.
+
+### ADR-016 — Accounts: bcrypt passwords, short access JWTs, rotating refresh tokens
+**2026-11-21 · Accepted** (TASK-025). Passwords are bcrypt hashes (`BCRYPT_ROUNDS`,
+default 12). Sign-in returns a 15-minute access JWT, sent as `Authorization: Bearer`,
+and sets a 7-day refresh JWT as an `HttpOnly; Secure; SameSite=Strict` cookie scoped
+to `/api/auth`. The database keeps only the refresh token's SHA-256; each refresh
+revokes it and issues a new one, and reusing a revoked one revokes all of that
+User's tokens (I-13). New dependencies: `bcryptjs`, `jsonwebtoken`, `zod` (all input
+validation), `express-rate-limit` (5 sign-ins or registrations per IP per minute).
+Rejected: a server session cookie on every route — every write would need CSRF
+protection, plus `express-session`; one long-lived JWT — sign-out could not end it on
+the server; tokens in `localStorage` — readable by any script on the page. Cost: two
+secrets to manage; an access token stays valid up to 15 minutes after sign-out; four
+dependencies; rate-limit counts live in memory and reset on restart.
+
+### ADR-017 — Migrations run once, tracked in `schema_migrations`, with `.down.sql`
+**2026-11-21 · Accepted** (TASK-025). `npm run migrate` applies only files not yet in
+`schema_migrations`; `npm run migrate:down` runs the last one's `NNN_<what>.down.sql`.
+Rejected: re-running every file — MySQL 8 has no `ADD COLUMN IF NOT EXISTS`, so 004
+cannot be idempotent; a migration library (`knex`, `umzug`) — a dependency for ~60
+lines. Cost: MySQL cannot roll back DDL, so a file that fails halfway leaves part of
+it applied and unrecorded; down files are hand-written and can drift from the up file.
+
+### ADR-018 — A Task's owner is stored on `tasks` only
+**2026-11-21 · Accepted** (TASK-025). `tasks.user_id`; TimeEntry queries join `tasks`
+and filter `user_id = ?`, so a Timer's owner is its Task's. Rejected:
+`time_entries.user_id` as well — the owner stored twice can drift. Cost: every
+timer query carries a join.
+
+### ADR-019 — The browser keeps the access token in memory and renews it on every page load
+**2026-11-21 · Accepted** (TASK-026). `src/api-client.js` holds the access token in a
+module variable. Every page starts without one, so its first API call does
+`POST /api/auth/refresh` with the cookie; all calls of a page share that one refresh,
+because a second one would spend the same refresh token and count as reuse (I-13).
+No session → `login.html?next=<page>`. The API host is the page's own host on port
+3000, so page and API are one site and the `SameSite=Strict` cookie is sent; in
+development the API answers CORS with the exact `localhost`/`127.0.0.1` origin and
+`Allow-Credentials` instead of `*`. Rejected: the token in `sessionStorage` — one
+refresh per 15 minutes instead of per page, but readable by any script (ADR-016's
+reason); a single-page app — undoes ADR-006. Cost: one extra request per page load;
+two tabs loading at the same moment, or a reload while a refresh is in flight, can
+spend one token twice and sign the user out everywhere; pages served from any other
+host get no CORS headers.
+
+### ADR-020 — One `admin` role, read-only, checked against the database per request
+**2026-11-21 · Accepted** (TASK-027). `users.role` is `user` or `admin`; the first
+admin is made by `UPDATE`, and no route changes a role. `users.service.js` reads the
+requester's role on each request that needs it, and a non-admin gets `404` (I-14).
+The profile changes only its owner: email, password and deletion need the current
+password, and a wrong one answers `400` `field: "currentPassword"` — `401` would make
+the client think the session expired and sign the user out. Changing the password
+revokes every RefreshToken and starts a new session for the browser that asked.
+Rejected: the role inside the access token — a demoted admin would keep reading for
+up to 15 minutes; an admin who edits or deletes others — the owner chose read-only
+(D3); `403` for non-admins — it confirms the list exists. Cost: one extra query on
+admin routes; with only SQL to change roles, deleting the last admin leaves none.

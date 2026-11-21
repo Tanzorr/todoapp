@@ -3,8 +3,8 @@
 const taskRepo = require('../tasks/tasks.repository');
 const timerRepo = require('./timer.repository');
 
-async function assertTaskExists(taskId) {
-    const task = await taskRepo.findById(taskId);
+async function assertTaskExists(taskId, userId) {
+    const task = await taskRepo.findById(taskId, userId);
     if (!task) {
         const err = new Error('Task not found');
         err.status = 404;
@@ -12,17 +12,22 @@ async function assertTaskExists(taskId) {
     }
 }
 
-async function startTimer(taskId) {
-    await assertTaskExists(taskId);
+async function startTimer(taskId, userId) {
+    await assertTaskExists(taskId, userId);
 
-    const open = await timerRepo.findOpenEntry(taskId);
+    const open = await timerRepo.findOpenEntry(taskId, userId);
     if (open) {
         const err = new Error('Timer is already running for this task');
         err.status = 409;
         throw err;
     }
 
-    const entry = await timerRepo.createEntry(taskId);
+    const entry = await timerRepo.createEntry(taskId, userId);
+    if (!entry) {
+        const err = new Error('Task not found');
+        err.status = 404;
+        throw err;
+    }
     return {
         entryId: entry.id,
         taskId: entry.task_id,
@@ -30,17 +35,17 @@ async function startTimer(taskId) {
     };
 }
 
-async function stopTimer(taskId) {
-    await assertTaskExists(taskId);
+async function stopTimer(taskId, userId) {
+    await assertTaskExists(taskId, userId);
 
-    const open = await timerRepo.findOpenEntry(taskId);
+    const open = await timerRepo.findOpenEntry(taskId, userId);
     if (!open) {
         const err = new Error('No running timer for this task');
         err.status = 409;
         throw err;
     }
 
-    const entry = await timerRepo.closeEntry(open.id);
+    const entry = await timerRepo.closeEntry(open.id, userId);
     const elapsedSeconds = Math.round(
         (new Date(entry.stopped_at) - new Date(entry.started_at)) / 1000
     );
@@ -54,11 +59,11 @@ async function stopTimer(taskId) {
     };
 }
 
-async function getTimerTotal(taskId) {
-    await assertTaskExists(taskId);
+async function getTimerTotal(taskId, userId) {
+    await assertTaskExists(taskId, userId);
 
-    const totalSeconds = await timerRepo.getTotalSeconds(taskId);
-    const open = await timerRepo.findOpenEntry(taskId);
+    const totalSeconds = await timerRepo.getTotalSeconds(taskId, userId);
+    const open = await timerRepo.findOpenEntry(taskId, userId);
 
     return {
         taskId,
@@ -68,4 +73,3 @@ async function getTimerTotal(taskId) {
 }
 
 module.exports = { startTimer, stopTimer, getTimerTotal };
-

@@ -1,31 +1,29 @@
 'use strict';
 
+const { z } = require('zod');
+const { validate } = require('../../lib/validate');
+
 const MAX_TITLE_LENGTH = 200;
+const TITLE_REQUIRED = 'Title is required';
+const INVALID_ID = 'Invalid task id';
+
+const titleSchema = z
+    .string({ error: TITLE_REQUIRED })
+    .trim()
+    .min(1, { error: TITLE_REQUIRED })
+    .max(MAX_TITLE_LENGTH, { error: `Title must be ${MAX_TITLE_LENGTH} characters or fewer` });
+
+const idSchema = z.preprocess(
+    (value) => parseInt(value, 10),
+    z.number({ error: INVALID_ID }).int({ error: INVALID_ID }).positive({ error: INVALID_ID })
+);
 
 function validateTitle(title) {
-    if (!title || typeof title !== 'string' || title.trim().length === 0) {
-        const err = new Error('Title is required');
-        err.status = 400;
-        err.field = 'title';
-        throw err;
-    }
-    if (title.trim().length > MAX_TITLE_LENGTH) {
-        const err = new Error(`Title must be ${MAX_TITLE_LENGTH} characters or fewer`);
-        err.status = 400;
-        err.field = 'title';
-        throw err;
-    }
+    return validate(titleSchema, title, 'title');
 }
 
 function validateId(id) {
-    const parsed = parseInt(id, 10);
-    if (!Number.isInteger(parsed) || parsed <= 0) {
-        const err = new Error('Invalid task id');
-        err.status = 400;
-        throw err;
-    }
-    return parsed;
+    return validate(idSchema, id);
 }
 
 module.exports = { validateTitle, validateId };
-

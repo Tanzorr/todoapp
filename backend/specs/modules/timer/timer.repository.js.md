@@ -2,44 +2,29 @@
 
 ## Purpose
 
-Data access layer for timer entries. Encapsulates all SQL queries on the `time_entries` table.
+Data access for `time_entries`. A TimeEntry has no owner column; every query joins `tasks` and filters `tasks.user_id = ?`, so a TimeEntry belongs to whoever owns its Task (ADR-018, I-11).
 
 ## Exports
 
-- **`findOpenEntry(taskId)`** (async): Find the currently running timer for a task, if any.
-  - **Parameters:** `taskId` (number): Task ID.
-  - **Returns:** Promise resolving to a time entry object (raw database row), or `null` if no open timer.
-  - **Query:** `SELECT * FROM time_entries WHERE task_id = ? AND stopped_at IS NULL LIMIT 1`.
-
-- **`createEntry(taskId)`** (async): Create a new timer entry (starts the timer).
-  - **Parameters:** `taskId` (number): Task ID.
-  - **Returns:** Promise resolving to the newly created time entry object (with auto-generated `id`, `started_at` set to current time).
-  - **Query:** Inserts a row with `task_id` and `started_at = NOW()`, then fetches it back.
-
-- **`closeEntry(entryId)`** (async): Stop a running timer.
-  - **Parameters:** `entryId` (number): Time entry ID.
-  - **Returns:** Promise resolving to the updated time entry object with `stopped_at` set to current time.
-  - **Query:** Updates the row, setting `stopped_at = NOW()`, then fetches it back.
-
-- **`getTotalSeconds(taskId)`** (async): Calculate total elapsed time for a task across all completed timers, plus the current running timer (if any).
-  - **Parameters:** `taskId` (number): Task ID.
-  - **Returns:** Promise resolving to `{ total: <number> }`, where `total` is the sum in seconds. If no entries exist, returns `0`.
-  - **Behavior:** Uses MySQL `TIMESTAMPDIFF(SECOND, ...)` and `COALESCE(stopped_at, NOW())` so running timers count from their start to the current moment.
+- **`findOpenEntry(taskId, userId)`** (async): The Task's open entry (raw row) if the Task is the User's, else `null`.
+- **`createEntry(taskId, userId)`** (async): Starts a TimeEntry with `started_at = NOW()`.
+  - **Query:** `INSERT … SELECT id, NOW() FROM tasks WHERE id = ? AND user_id = ?` — inserts nothing for another User's Task.
+  - **Returns:** the new raw row, or `null` when nothing was inserted.
+- **`closeEntry(entryId, userId)`** (async): Sets `stopped_at = NOW()` on the entry if its Task is the User's.
+  - **Returns:** the raw row after the update, or `null`.
+- **`getTotalSeconds(taskId, userId)`** (async): Sum of `TIMESTAMPDIFF(SECOND, started_at, COALESCE(stopped_at, NOW()))` over the Task's entries; `0` when there are none or the Task is not the User's.
 
 ## Behavior / business rules
 
-- **Open entry:** A "running" timer is a row with `stopped_at IS NULL`.
-- **Closed entry:** A "completed" timer is a row with `stopped_at IS NOT NULL`.
-- **Total calculation:** Running timers are included in the total by using `COALESCE(stopped_at, NOW())` — if `stopped_at` is NULL, use the current time.
-- **Return format:** `createEntry()` and `closeEntry()` return raw database rows (snake_case column names, DATETIME strings). Transformation to the service's format happens in `timer.service.js`.
+- **Open entry** = `stopped_at IS NULL` (I-2, I-3).
+- Rows are returned raw (snake_case); `timer.service.js` shapes the response.
+- Parameterized queries only (I-10).
 
 ## Dependencies
 
 - **Imports:** `../../db/pool`
-- **Depends on:** Called by `timer.service.js`, and by `tasks.service.js` to close an open entry on `done` (ADR-013)
+- **Called by:** `timer.service.js`; `tasks.service.js` to close the open entry on `done` (ADR-013)
 
 ## Notes
 
-- All queries use parameterized statements to prevent SQL injection.
-- Queries immediately fetch the row back after INSERT or UPDATE to ensure the client sees the actual database state (including any defaults or computed columns).
-- No cascading deletes are enforced here; the schema constraint in the migration (`ON DELETE CASCADE`) handles it.
+- Deleting a Task removes its entries through `ON DELETE CASCADE`, not here.

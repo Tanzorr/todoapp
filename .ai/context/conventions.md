@@ -16,7 +16,12 @@ do not literally name.
 - ES modules, **named exports only**, no default exports, no `require`.
 - File placement: DOM creation → `dom-elements.js` · handlers → `actions.js` ·
   list rendering → `render.js` · constants and UI text → `constants.js` ·
-  input rules → `validations.js` · HTTP → `api-client.js` only.
+  input rules → `validations.js` · HTTP → `api-client.js` only · sign-in form →
+  `auth-form.js` · profile forms → `profile-forms.js` · header name, Users link and
+  sign-out → `account.js`. Account forms show errors with `showFormError()` from
+  `feedback.js`: each input has a `<p id="<input id>-error">`, the form one `.form-error`.
+- A task page calls `initAccount()`; its first API call then renews the session or
+  sends the user to `login.html` (ADR-019). Never store the access token.
 - User text via `textContent` (I-8). `innerHTML` only to clear (`= ''`).
 - API failure → `try/catch` → `alert(err.message)` (ADR-005).
 - Show what the API reports; do not keep a parallel state the server also has (I-3, I-4).
@@ -35,7 +40,8 @@ do not literally name.
 - Errors: `const err = new Error(msg); err.status = 4xx; err.field = '…'; throw err;`
 - Repository: SQL with `?` placeholders only (I-10); map rows to camelCase.
 - Config only via `config/env.js`; never `process.env` elsewhere.
-- New migration = new numbered file `NNN_<what>.sql`, idempotent. Never edit an
+- New migration = new numbered file `NNN_<what>.sql` plus `NNN_<what>.down.sql` that
+  undoes it (`IF EXISTS` where MySQL allows). Each runs once (ADR-017). Never edit an
   applied one.
 - Changing a file's exported behaviour updates its spec in `backend/specs/` (ADR-008).
 

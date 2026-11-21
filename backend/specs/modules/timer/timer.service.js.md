@@ -50,7 +50,8 @@ Business logic layer for timer operations. Handles timer state validation, error
 
 ## Behavior / business rules
 
-- **Task existence:** All operations first check that the task exists via `assertTaskExists()` (internal helper).
+- **Owner:** every export takes `(taskId, userId)` — the signatures above omit `userId` — and passes it to every repository call (I-11).
+- **Task existence:** All operations first check, via `assertTaskExists(taskId, userId)`, that the Task exists **and is the User's**; otherwise `404` `Task not found`. `startTimer` also answers `404` if the Task disappears before the insert.
 - **Start timer:**
   - Creates a new time entry with `started_at = NOW()`.
   - Rejects if a timer is already running (at most one per task).

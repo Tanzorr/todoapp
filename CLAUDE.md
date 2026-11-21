@@ -25,10 +25,10 @@ Applies to docs, tickets, commit messages, code comments and replies alike.
 ## 1. ONTOLOGY
 
 The domain model lives in [`.ai/context/ontology.md`](.ai/context/ontology.md) —
-concepts, relations, invariants I-1…I-10, open questions.
+concepts, relations, invariants I-1…I-14, open questions.
 
 **Concepts:** `Task` · `TimeEntry` · `Timer` · `TrackedTime` · `TaskItem` ·
-`SelectedTask` · `ApiError`
+`SelectedTask` · `ApiError` · `User` · `RefreshToken`
 
 - **Names come from the ontology.** It is a `Task`, not a `todo` or `item`, in
   new code. (Legacy names like `deleteTodoItem` stay until a ticket renames them.)

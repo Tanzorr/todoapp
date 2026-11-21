@@ -2,31 +2,38 @@
 
 ## Purpose
 
-Loads and validates environment variables from the `.env` file and exports them as named constants. Acts as the single source of truth for configuration across the application.
+Loads `backend/.env`, validates the auth settings and exports every setting as a named constant. The only file that reads `process.env`.
 
 ## Exports
 
-- **`PORT`** (number): Server port, read from `process.env.PORT`, default `3000`.
-- **`NODE_ENV`** (string): Deployment environment (`'development'`, `'production'`, etc.), default `'development'`.
-- **`DB_HOST`** (string): MySQL server hostname, default `'localhost'`.
-- **`DB_PORT`** (number): MySQL server port, parsed from env, default `3306`.
-- **`DB_USER`** (string): MySQL username, default `'root'`.
-- **`DB_PASSWORD`** (string): MySQL password, default empty string `''`.
-- **`DB_NAME`** (string): MySQL database name, default `'todo_app'`.
+- **`PORT`** (number): Server port, default `3000`.
+- **`NODE_ENV`** (string): `'development'` (default) enables dev CORS.
+- **`DB_HOST`** (string): MySQL host, default `'localhost'`.
+- **`DB_PORT`** (number): MySQL port, default `3306`.
+- **`DB_USER`** (string): MySQL user, default `'root'`.
+- **`DB_PASSWORD`** (string): MySQL password, default `''`.
+- **`DB_NAME`** (string): Database, default `'todo_app'`.
+- **`JWT_SECRET`** (string): Signs access tokens. Required.
+- **`JWT_REFRESH_SECRET`** (string): Signs refresh tokens. Required.
+- **`BCRYPT_ROUNDS`** (number): bcrypt cost, default `12`.
+- **`AUTH_RATE_LIMIT`** (number): register + login requests allowed per IP per minute, default `5`.
 
 ## Behavior / business rules
 
-- Loads `.env` file from the project root (resolved relative to the `config/` directory).
-- Uses `dotenv`'s `config()` to populate `process.env`.
-- `DB_PORT` is parsed to an integer; all others are strings or numbers as noted.
-- All variables have sensible defaults if not set in `.env`.
+- **Fails on load** — so the server, the migration runner and the tests refuse to start — with `Error('[config] …')` when:
+  - `JWT_SECRET` or `JWT_REFRESH_SECRET` is missing or under 32 characters;
+  - the two secrets are equal;
+  - `BCRYPT_ROUNDS` is not an integer from 4 to 31;
+  - `AUTH_RATE_LIMIT` is not a positive integer.
+- The error names the variable, never its value.
+- A variable already in the process environment wins over `.env` (`dotenv` does not override), so `DB_NAME=todo_app_test npm run migrate` targets the test database.
 
 ## Dependencies
 
-- **Imports:** `dotenv`, `path` (Node.js built-in)
-- **Depends on:** All other modules import from this file to get their config.
+- **Imports:** `dotenv`, `path`
+- **Called by:** every module that needs configuration.
 
 ## Notes
 
-- The `.env` file is loaded relative to `__dirname` (the `config/` folder), not the project root. The path is adjusted with `../../.env` to reach the root.
-- Defaults are meant for local development; production deployments must set `NODE_ENV`, database credentials, and optionally `PORT` via environment variables.
+- `.env` is resolved as `../../.env` from `src/config/`, i.e. `backend/.env`.
+- Secrets differ so a refresh token can never pass as an access token.

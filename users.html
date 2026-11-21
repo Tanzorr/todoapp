@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Users — My todo</title>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<header class="site-header">
+    <div class="site-header-inner">
+        <a class="site-name" href="index.html">My todo</a>
+        <div class="account" hidden>
+            <a class="account-users" href="users.html" aria-current="page" hidden>Users</a>
+            <a class="account-name" href="user.html"></a>
+            <button class="account-sign-out" type="button">Sign out</button>
+        </div>
+    </div>
+</header>
+<main class="page-main page-narrow">
+    <h1 class="page-title">Users</h1>
+    <p class="page-message" hidden></p>
+    <div class="list-card user-list" hidden></div>
+</main>
+<footer class="site-footer">2025 alex@ukr.net</footer>
+<script type="module" src="src/users.js"></script>
+</body>
+</html>

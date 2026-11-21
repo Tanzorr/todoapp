@@ -6,7 +6,7 @@ const { validateTaskId } = require('./timer.validation');
 async function startTimer(req, res, next) {
     try {
         const taskId = validateTaskId(req.params.taskId);
-        const result = await service.startTimer(taskId);
+        const result = await service.startTimer(taskId, req.user.id);
         res.status(201).json(result);
     } catch (err) {
         next(err);
@@ -16,7 +16,7 @@ async function startTimer(req, res, next) {
 async function stopTimer(req, res, next) {
     try {
         const taskId = validateTaskId(req.params.taskId);
-        const result = await service.stopTimer(taskId);
+        const result = await service.stopTimer(taskId, req.user.id);
         res.json(result);
     } catch (err) {
         next(err);
@@ -26,7 +26,7 @@ async function stopTimer(req, res, next) {
 async function getTimerTotal(req, res, next) {
     try {
         const taskId = validateTaskId(req.params.taskId);
-        const result = await service.getTimerTotal(taskId);
+        const result = await service.getTimerTotal(taskId, req.user.id);
         res.json(result);
     } catch (err) {
         next(err);
@@ -34,4 +34,3 @@ async function getTimerTotal(req, res, next) {
 }
 
 module.exports = { startTimer, stopTimer, getTimerTotal };
-

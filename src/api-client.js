@@ -1,26 +1,141 @@
 // api-client.js
-import { ALERTS } from './constants.js';
+import { ALERTS, SIGN_IN_PAGE } from './constants.js';
 
-const BASE_URL = 'http://localhost:3000/api';
+// Same host as the page, so the API and the page are one site and the
+// SameSite=Strict refresh cookie is sent.
+const BASE_URL = `http://${window.location.hostname}:3000/api`;
 
-async function apiFetch(path, options = {}) {
-    let res;
+// In memory only (I-1): every page load buys a new one with the refresh cookie.
+let accessToken = null;
+let refreshing = null;
+
+async function send(path, options = {}) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
     try {
-        res = await fetch(`${BASE_URL}${path}`, {
-            headers: { 'Content-Type': 'application/json' },
-            ...options,
-        });
+        return await fetch(`${BASE_URL}${path}`, { ...options, headers, credentials: 'include' });
     } catch {
         throw new Error(ALERTS.serverDown);
     }
+}
+
+async function readBody(res) {
     if (res.status === 204) return null;
     const data = await res.json();
     if (!res.ok) {
         const err = new Error(data.error?.message || 'API error');
+        err.status = res.status;
         err.field = data.error?.field;
         throw err;
     }
     return data;
+}
+
+// One refresh at a time: a refresh token works once, and spending it twice would
+// sign the user out everywhere (I-13).
+function refreshSession() {
+    refreshing ??= send('/auth/refresh', { method: 'POST' })
+        .then(readBody)
+        .then((data) => {
+            accessToken = data.accessToken;
+        })
+        .finally(() => {
+            refreshing = null;
+        });
+    return refreshing;
+}
+
+// Never settles, so no caller shows an error while the browser leaves for sign-in.
+function goToSignIn() {
+    const page = window.location.pathname.split('/').pop() || 'index.html';
+    window.location.href = `${SIGN_IN_PAGE}?next=${encodeURIComponent(page)}`;
+    return new Promise(() => {});
+}
+
+async function renewSession() {
+    try {
+        await refreshSession();
+    } catch (err) {
+        if (err.status === 401) return goToSignIn();
+        throw err;
+    }
+}
+
+async function apiFetch(path, options = {}) {
+    if (!accessToken) await renewSession();
+    const tokenSent = accessToken;
+    let res = await send(path, options);
+    if (res.status === 401) {
+        // Another call may have renewed it meanwhile.
+        if (accessToken === tokenSent) await renewSession();
+        res = await send(path, options);
+    }
+    return readBody(res);
+}
+
+export async function register(email, password) {
+    const res = await send('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+    });
+    return readBody(res);
+}
+
+export async function signIn(email, password) {
+    const res = await send('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+    });
+    const data = await readBody(res);
+    accessToken = data.accessToken;
+    return data.user;
+}
+
+export async function signOut() {
+    await readBody(await send('/auth/logout', { method: 'POST' }));
+    accessToken = null;
+}
+
+export async function getCurrentUser() {
+    return apiFetch('/auth/me');
+}
+
+export async function getUsers() {
+    return apiFetch('/users');
+}
+
+export async function getMyProfile() {
+    return apiFetch('/users/me');
+}
+
+export async function getUser(id) {
+    return apiFetch(`/users/${id}`);
+}
+
+export async function updateName(name) {
+    return apiFetch('/users/me', { method: 'PATCH', body: JSON.stringify({ name }) });
+}
+
+export async function changeEmail(email, currentPassword) {
+    return apiFetch('/users/me/email', {
+        method: 'PUT',
+        body: JSON.stringify({ email, currentPassword }),
+    });
+}
+
+// Every other session ends; this one continues with the token the response brings.
+export async function changePassword(currentPassword, newPassword) {
+    const data = await apiFetch('/users/me/password', {
+        method: 'PUT',
+        body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    accessToken = data.accessToken;
+    return data.user;
+}
+
+export async function deleteAccount(currentPassword) {
+    await apiFetch('/users/me', { method: 'DELETE', body: JSON.stringify({ currentPassword }) });
+    accessToken = null;
 }
 
 export async function getTasks() {

@@ -49,6 +49,7 @@ HTTP request handlers for the timer API. Parses request parameters, calls the se
 
 ## Behavior / business rules
 
+- **Owner:** every handler passes `req.user.id` to the service; another User's Task answers `404` (I-11).
 - **Error handling:** All async errors are caught in try-catch and routed via `next(err)` to the global error handler.
 - **Validation:** Task ID is validated before calling the service.
 - **Status codes:** 201 for start (created), 200 for stop and get (success), 400 for validation, 404 for not found, 409 for conflict.

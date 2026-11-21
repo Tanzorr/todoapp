@@ -2,29 +2,33 @@
 
 ## Purpose
 
-Reads SQL migration files from `db/migrations/` directory, sorts them by filename, executes each statement, and logs progress. Intended to be run once on setup via `npm run migrate`.
+Applies pending SQL migrations from `db/migrations/` and records each in `schema_migrations`, or undoes the last one. Run as `npm run migrate` / `npm run migrate:down`; the test harness calls `up()` directly (ADR-017).
 
 ## Exports
 
-None. This is an executable script.
+- **`up()`** (async): Applies every `NNN_<what>.sql` not yet in `schema_migrations`, in filename order, recording each after it runs.
+  - **Returns:** Promise resolving to the array of filenames applied (empty when none were pending).
+  - **Throws:** The first SQL error; files after it are not run.
+
+- **`down()`** (async): Runs `NNN_<what>.down.sql` for the most recently applied migration and removes its row.
+  - **Returns:** Promise resolving to the undone filename, or `null` when nothing is applied.
+  - **Throws:** `Error` when the matching `.down.sql` file does not exist; any SQL error.
 
 ## Behavior / business rules
 
-- **Migration discovery:** Reads all `.sql` files from the `migrations/` directory and sorts them alphabetically. This ensures migrations run in a predictable order (e.g., `001_init.sql` before `002_add_column.sql`).
-- **Statement splitting:** Each `.sql` file may contain multiple SQL statements separated by semicolons. The runner splits on `;`, trims whitespace, and executes each non-empty statement individually via `pool.execute()`.
-- **Serial execution:** Migrations are executed one file at a time, one statement at a time (no parallelization).
-- **Logging:** Prints one line per migration file (`[migrate] ✓ <filename>`) and a summary at the end (`[migrate] done`).
-- **Error handling:** If any statement fails, logs the error and calls `process.exit(1)`.
-- **Cleanup:** Calls `pool.end()` after all migrations complete to close the database connection.
+- **Discovery:** only files matching `^\d{3}_[\w-]+\.sql$` are migrations; `.down.sql` files never match.
+- **Tracking:** `schema_migrations (name PK, applied_at)` is created on first use. A database migrated before this runner existed re-runs `001_init.sql`, which is idempotent, and records it.
+- **Statement splitting:** each file is split on `;` and each non-empty statement runs through `pool.query()` (text protocol, so DDL is accepted). A `;` inside a string or comment would break the split.
+- **Down guard (CLI only):** `migrate.js down` refuses unless `DB_NAME` ends in `_test` or `--force` is passed (`npm run migrate:down -- --force`).
+- **CLI:** logs `[migrate] ✓ <file>` per applied file and `[migrate] ↶ <file>` per undone one; on error logs `[migrate] error: <message>` and exits `1`. Always closes the pool.
 
 ## Dependencies
 
-- **Imports:** `fs`, `path` (Node.js built-ins), `./pool`
-- **Called by:** `npm run migrate` (as defined in `package.json`)
+- **Imports:** `fs`, `path`, `./pool`, `../config/env` (`DB_NAME`)
+- **Called by:** `npm run migrate`, `npm run migrate:down`, `backend/test/helpers.js`
 
 ## Notes
 
-- Migration files are **immutable** by convention; once run, they should not be edited. New changes go in a new migration file.
-- The migration runner does NOT track which migrations have already been run (no `migrations` table). Every run executes all files in the directory. This is fine for small projects; larger projects typically add a `migrations` table and track executed filenames.
-- Error messages include `[migrate]` prefix for parsing in logs.
-- `pool.end()` closes the database connection, so this script must not be run while the server is running (they share no state, but both will close the connection).
+- Applied migrations are immutable; a change is a new numbered file with its own `.down.sql`.
+- MySQL commits DDL immediately: a file that fails halfway leaves its earlier statements applied and is not recorded. Fix forward, or undo by hand.
+- `up()`/`down()` do not close the pool; the caller does.

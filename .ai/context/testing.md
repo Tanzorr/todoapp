@@ -1,7 +1,8 @@
 # Testing
 
-There is **no automated test suite yet** (TASK-014). Until there is, a claim
-that something works means one of the checks below was run and its output read.
+A claim that something works means one of the checks below was run and its
+output read. Only auth and access control are automated so far; the Task and
+Timer API checks are TASK-014.
 
 ## Static checks
 
@@ -10,10 +11,31 @@ npm run check                                    # frontend lint + format
 for f in $(git ls-files 'backend/src/*.js'); do node --check "$f"; done
 ```
 
+## Automated: `cd backend && npm test`
+
+`node:test` + global `fetch`, no extra dependency. Each `test/*.test.js` runs in its
+own process, one at a time, against an in-process app on a random port.
+
+| File | Covers |
+| :--- | :--- |
+| `test/auth.test.js` | TASK-025 AC-2…AC-8, AC-12 — register, login, refresh rotation and reuse, logout, `/me` |
+| `test/access-control.test.js` | AC-9 (every `/api/tasks` route → `401`), AC-10 (another User's Task → `404`, unchanged) — I-11 |
+| `test/rate-limit.test.js` | AC-11 — 6th register/login per minute → `429` |
+| `test/users.test.js` | TASK-027 AC-2…AC-7 — admin list, who reads whom (I-14), name, email, password, delete |
+
+- `test/helpers.js` forces `DB_NAME=todo_app_test`, refuses any database not ending in
+  `_test`, migrates it up, and generates throwaway JWT secrets — `backend/.env`
+  supplies only the MySQL connection. The database must exist.
+- Every User a test registers is deleted afterwards, which cascades to its Tasks,
+  TimeEntries and RefreshTokens.
+- Exits non-zero on any failure.
+
 ## Required Checks
 
 Run against a migrated database with the API and static server up
-([`stack.md`](stack.md)). `$T` is a task id from step T-1.
+([`stack.md`](stack.md)). `$T` is a task id from step T-1. Every `/api/tasks` call
+needs `-H "Authorization: Bearer $TOKEN"`, where `$TOKEN` is the `accessToken` from
+`POST /api/auth/login` (it lasts 15 minutes); without it the answer is `401`.
 
 | # | Check | How | Proves |
 | :--- | :--- | :--- | :--- |
@@ -25,10 +47,12 @@ Run against a migrated database with the API and static server up
 | T-6 | Total | `GET …/$T/timer` → `totalSeconds` ≈ sum of intervals, `isRunning` matches | I-3, I-4, S-1 |
 | T-7 | Delete cascades | `DELETE …/$T` → 204; `SELECT COUNT(*) FROM time_entries WHERE task_id=$T` → 0 | I-5, S-4 |
 | T-8 | Unknown route | `curl -s localhost:3000/nope` → 404 ApiError | I-7 |
-| T-9 | Browser: add → list | add page → task appears on index after redirect | V-3 |
+| T-9 | Browser: add → list | signed in: add page → task appears on index after redirect | V-3 |
 | T-10 | Browser: timer survives reload | start, wait 5 s, reload → still running, keeps counting | **S-2** |
 | T-11 | Browser: delete while running | row disappears, no console error, no further ticks | I-5 |
 | T-12 | Browser: HTML in title | title `<b>x</b>` renders as literal text | I-8 |
+| T-13 | Browser: session | signed out, `index.html` → `login.html?next=index.html`; register → index with the email in the header; reload keeps you signed in; Sign out → `login.html`, and `index.html` sends you back there | V-6, I-1, I-13 |
+| T-14 | Browser: profile and users | as a user: header name → `user.html`, save a name (header follows), wrong current password shows under its field without signing out; `users.html` shows the admin-only notice. As the admin: **Users** link → list → a row opens a read-only profile | V-6, I-14 |
 
 **T-4/T-5/T-6 are the core** — they prove V-1. Run them for any change to
 `modules/timer/`, `src/timer.js` or `src/api-client.js`.

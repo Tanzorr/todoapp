@@ -2,55 +2,26 @@
 
 ## Purpose
 
-Data access layer for tasks. Encapsulates all SQL queries and row transformations. Talks directly to the database via `pool.query()`.
+Data access layer for tasks. Every query is scoped to one User (I-11): a Task of another User is invisible here, exactly like a missing one.
 
 ## Exports
 
-- **`findAll()`** (async): Fetch all tasks.
-  - **Returns:** Promise resolving to array of task objects (sorted by ID, ascending).
-
-- **`findById(id)`** (async): Fetch a single task by ID.
-  - **Parameters:** `id` (number): Task ID.
-  - **Returns:** Promise resolving to task object, or `null` if not found.
-
-- **`create(title, description)`** (async): Insert a new task.
-  - **Parameters:**
-    - `title` (string): Task title (assumed already validated).
-    - `description` (string): Optional task description. If falsy, stored as NULL.
-  - **Returns:** Promise resolving to the newly created task object (including auto-generated `id`).
-
-- **`update(id, fields)`** (async): Update one or more task fields.
-  - **Parameters:**
-    - `id` (number): Task ID.
-    - `fields` (object): Keys from `{ title, description, done }` with new values.
-  - **Returns:** Promise resolving to the updated task object.
-  - **Behavior:** Only updates fields present in `fields` object. If `fields` is empty, returns the current task unchanged.
-
-- **`remove(id)`** (async): Delete a task and all its timer entries (cascading).
-  - **Parameters:** `id` (number): Task ID.
-  - **Returns:** Promise resolving to undefined.
+- **`findAll(userId)`** (async): The User's Tasks, by `id` ascending.
+- **`findById(id, userId)`** (async): The Task, or `null` when it does not exist **or belongs to another User**.
+- **`create(userId, title, description)`** (async): Inserts a Task owned by `userId`.
+  - `title` is assumed validated and trimmed; a falsy `description` is stored as NULL.
+  - **Returns:** the new Task.
+- **`update(id, userId, fields)`** (async): Updates any of `{ title, description, done }` present in `fields`, only on the User's Task.
+  - **Returns:** the Task after the update (`null` if it is not the User's). With no fields, returns it unchanged.
+- **`remove(id, userId)`** (async): Deletes the User's Task; MySQL cascades to its TimeEntries. Another User's id deletes nothing.
 
 ## Behavior / business rules
 
-- **Row-to-object transformation:** Each row from the database is transformed by `rowToTask()` to normalize field names and types:
-  - `id` → `id` (unchanged)
-  - `title` → `title` (unchanged)
-  - `description` → `description` (null becomes empty string `''`)
-  - `done` → `done` (MySQL `TINYINT` 0/1 becomes boolean false/true)
-  - `created_at` → `createdAt` (camelCase)
-  - `updated_at` → `updatedAt` (camelCase)
-
-- **Parameterized queries:** All SQL uses `?` placeholders with parameter arrays to prevent SQL injection.
-
-- **Returned objects:** All methods return task objects in the transformed format (camelCase, booleans, nulls as empty strings).
+- **Row mapping** (`rowToTask()`): `description` NULL → `''`; `done` 0/1 → boolean; `created_at`/`updated_at` → `createdAt`/`updatedAt`. `user_id` is not returned.
+- **Scoping:** every statement has `user_id = ?` in its `WHERE`, so a missed check in the service still cannot reach another User's row.
+- **Parameterized queries** only (I-10). `update()` builds its `SET` list from fixed column names, never from input.
 
 ## Dependencies
 
-- **Imports:** `../../db/pool` (the database connection)
-- **Depends on:** Called by `tasks.service.js`
-
-## Notes
-
-- `create()` inserts the row and immediately queries it back to get the auto-generated `id` and any defaults applied by the database.
-- `update()` constructs the SQL `SET` clause dynamically based on which fields are provided, avoiding unnecessary updates.
-- `remove()` relies on the database foreign-key constraint (ON DELETE CASCADE) to delete associated time entries.
+- **Imports:** `../../db/pool`
+- **Called by:** `tasks.service.js`, `timer.service.js`

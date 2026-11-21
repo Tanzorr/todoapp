@@ -2,40 +2,31 @@
 
 ## Purpose
 
-Global error handler middleware. Catches errors thrown or passed via `next(err)` from route handlers and responds with a JSON error object. Must be the last middleware mounted in the app.
+Global error handler. Turns anything thrown or passed to `next(err)` into an `ApiError` response (I-7). Must be the last middleware mounted.
 
 ## Exports
 
-- **`errorHandler(err, req, res, next)`** (middleware): Express 4-argument error handler.
-  - **Parameters:**
-    - `err` (Error object): The error to handle.
-    - `req`, `res`, `next`: Standard Express request/response/next.
-  - **Returns:** No return value; always sends a JSON response.
+- **`errorHandler(err, req, res, next)`** (middleware): Express 4-argument error handler. Always sends JSON.
 
 ## Behavior / business rules
 
-- **Status code:** Uses `err.status` if present, otherwise defaults to `500` (Internal Server Error).
-- **Message:** Uses `err.message` if present, otherwise defaults to `'Internal Server Error'`.
-- **Response body:** Always returns a JSON object with structure:
+- **Status:** `err.status` when it is a known HTTP status from 400 to 599; otherwise `500`.
+- **Body:**
   ```json
-  {
-    "error": {
-      "status": <number>,
-      "message": "<string>",
-      "field": "<string>"  // only if err.field is set
-    }
-  }
+  { "error": { "status": 404, "code": "NOT_FOUND", "message": "Task not found", "field": "title" } }
   ```
-- **Field errors:** If the error object has an `err.field` property (used for validation errors), it is included in the response. This helps the client know which input field caused the error.
-- **No stack traces:** Stack traces are not sent to the client, even in development. Logs go to stderr/stdout only.
+  - `code` — the status's standard name in `UPPER_SNAKE_CASE` (`BAD_REQUEST`, `UNAUTHORIZED`, `NOT_FOUND`, `CONFLICT`, `TOO_MANY_REQUESTS`, `INTERNAL_SERVER_ERROR`, …). Added by TASK-025 (D3); additive under ADR-007.
+  - `message` — `err.message` for 4xx; always `Internal Server Error` for 5xx, so SQL or library messages never reach the client.
+  - `field` — only when `err.field` is set (validation errors).
+- **Logging:** 5xx errors are written to stderr with `console.error`; 4xx are not logged.
+- **No stack traces** in responses.
 
 ## Dependencies
 
-- **Imports:** None (pure middleware)
-- **Depends on:** Mounted in `app.js` as the last middleware. All route handlers should throw or call `next(err)` to route to this handler.
+- **Imports:** `http` (`STATUS_CODES`)
+- **Called by:** mounted last in `app.js`; `not-found.js` and `rate-limit.js` route their errors here.
 
 ## Notes
 
-- The `next` parameter is unused but required by Express to identify this as a 4-argument error handler.
-- Errors from synchronous code (e.g., `validateId()` throwing) are caught by Express's default behavior and routed here. Errors from async route handlers must be caught and passed to `next(err)` in a try-catch.
-- This handler does not log; consider adding logging middleware before deploying to production.
+- The unused `next` parameter is what makes Express treat this as an error handler.
+- Body-parser errors (malformed JSON) carry `status: 400` and keep their message.

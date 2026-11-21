@@ -2,47 +2,25 @@
 
 ## Purpose
 
-Input validation functions for task fields. Ensures data conforms to constraints before being inserted or updated in the database.
+`zod` schemas for a Task title and a Task id, run through `lib/validate.js` (D7 of TASK-025). Messages are the same as before zod.
 
 ## Exports
 
-- **`validateTitle(title)`** (function): Validates a task title.
-  - **Parameters:** `title` (any type): The value to validate.
-  - **Returns:** No return value (validates in-place).
-  - **Throws:** Error object with:
-    - `status`: `400`
-    - `message`: Either `"Title is required"` or `"Title must be 200 characters or fewer"` (depending on which constraint is violated).
-    - `field`: `"title"`
-
-- **`validateId(id)`** (function): Validates a numeric ID (for task or any resource).
-  - **Parameters:** `id` (string or number): The value to validate.
-  - **Returns:** Parsed integer ID if valid.
-  - **Throws:** Error object with:
-    - `status`: `400`
-    - `message`: `"Invalid task id"`
-    - No `field` property.
+- **`validateTitle(title)`**: Returns the trimmed title.
+  - **Throws:** `400`, `field: 'title'`, message `Title is required` (not a string, or empty after trim) or `Title must be 200 characters or fewer` (over 200 after trim).
+- **`validateId(id)`**: Returns the id as an integer.
+  - **Throws:** `400` `Invalid task id`, no `field`.
 
 ## Behavior / business rules
 
-- **Title validation:**
-  - Must be a non-empty string (after trimming whitespace).
-  - Must not exceed 200 characters (after trimming).
-  - Type must be `"string"`.
-  - If any constraint is violated, throws immediately.
-
-- **ID validation:**
-  - Parses the input as a base-10 integer.
-  - Must be a valid integer (not NaN, not a float).
-  - Must be greater than 0 (positive).
-  - Returns the parsed integer.
+- **Title:** 1–200 characters after trim (I-6).
+- **Id:** parsed with `parseInt(id, 10)` first, then must be a positive integer. So `'12abc'` is accepted as `12`, as before zod; `'abc'`, `'0'` and `'-3'` are refused.
 
 ## Dependencies
 
-- **Imports:** None
-- **Depends on:** Called by `tasks.controller.js` and `tasks.service.js`
+- **Imports:** `zod`, `../../lib/validate`
+- **Called by:** `tasks.controller.js` (`validateId`), `tasks.service.js` (`validateTitle`)
 
 ## Notes
 
-- `validateTitle` is called in both the controller (before passing to service) and the service (for redundancy/safety).
-- `MAX_TITLE_LENGTH = 200` is a file-level constant; changing it requires editing this file.
-- Errors thrown are designed to be caught by the express error handler and converted to HTTP 400 responses.
+- `timer.validation.js` holds the same id rule for `:taskId`.

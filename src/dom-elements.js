@@ -5,9 +5,13 @@ import { createIcon } from './feedback.js';
 import {
     ARIA_LABELS,
     BUTTON_TEXT,
+    PROFILE_PAGE,
+    PROFILE_TEXT,
+    ROLE_TEXT,
     TASKS_CHANGED,
     TASK_SHOW_LABELS,
     TASK_STATUS_TEXT,
+    USERS_TEXT,
 } from './constants.js';
 import { deleteTodoItem, toggleDoneStatus, toggleTimer } from './actions.js';
 
@@ -158,4 +162,51 @@ export function taskShowDomElement(taskTitle, taskTime, taskStatus, taskDescript
     );
 
     return container;
+}
+
+function formatDate(isoDate) {
+    return new Date(isoDate).toLocaleDateString();
+}
+
+export function createRoleBadge(role) {
+    const badge = createElement('span', ['role-badge'], ROLE_TEXT[role] ?? role);
+    badge.classList.toggle('is-admin', role === 'admin');
+    return badge;
+}
+
+// One User on the admin's list; opens that User's profile.
+export function createUserRow(user) {
+    const row = createLink('', `${PROFILE_PAGE}?id=${user.id}`, ['user-row']);
+    const main = createElement('span', ['user-row-main']);
+    main.append(
+        createElement('span', ['user-row-name'], user.name || user.email),
+        createElement('span', ['user-row-email'], user.name ? user.email : '')
+    );
+    const meta = createElement(
+        'span',
+        ['user-row-meta'],
+        `${USERS_TEXT.taskCount(user.taskCount)} · ${formatDate(user.createdAt)}`
+    );
+    row.append(main, meta, createRoleBadge(user.role));
+    return row;
+}
+
+export function createProfileSummary(user) {
+    const list = createElement('dl');
+    const { labels } = PROFILE_TEXT;
+    const rows = [
+        [labels.name, user.name || PROFILE_TEXT.noName],
+        [labels.email, user.email],
+        [labels.role, createRoleBadge(user.role)],
+        [labels.createdAt, formatDate(user.createdAt)],
+        [labels.taskCount, String(user.taskCount)],
+    ];
+    rows.forEach(([label, value]) => {
+        const row = createElement('div', ['profile-row']);
+        const definition = createElement('dd');
+        definition.append(value);
+        row.append(createElement('dt', [], label), definition);
+        list.append(row);
+    });
+    return list;
 }

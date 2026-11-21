@@ -3,6 +3,9 @@ import { taskValidation } from './validations.js';
 import { form, title, description } from './dom-elements.js';
 import { createTask } from './api-client.js';
 import { initPageAction } from './action-button.js';
+import { initAccount } from './account.js';
+
+initAccount();
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
