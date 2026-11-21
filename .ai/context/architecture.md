@@ -12,7 +12,9 @@ Browser  (index / add / edit / show .html)
   DOM factories   src/dom-elements.js                           create nodes, no fetch
   handlers        src/actions.js · src/action-button.js         click → API → DOM
   timer display   src/timer.js                                  per-TaskItem tick, start/stop
-  API adapter     src/api-client.js                             the only fetch() (I-7)
+  sign-in         src/login.js · auth-form.js · account.js      login page; header email + sign out
+  API adapter     src/api-client.js                             the only fetch() (I-7); holds the
+                                                                access token in memory (ADR-019)
   config / rules  src/constants.js · src/validations.js · src/data.js
         │  HTTP JSON
         ▼
@@ -41,7 +43,8 @@ calls `fetch`.
 Adding a Task, end to end:
 
 1. `add.html` submit → `src/add.js` → `createTask()` in `src/api-client.js` →
-   `POST /api/tasks` with `{ title, description }`.
+   `POST /api/tasks` with `{ title, description }` and the access token (bought on
+   page load from the refresh cookie; none → `login.html`).
 2. `authenticate` checks the Bearer token and sets `req.user` (no token → `401`) →
    `tasks.routes.js` → `tasks.controller.js` reads the body → `tasks.service.js`
    validates the title (I-6) → `tasks.repository.js`.
@@ -94,10 +97,11 @@ the breadcrumbs.
 
 | Page | Parent | Purpose | Goes to |
 | :--- | :--- | :--- | :--- |
-| [`index.html`](../../index.html) | — | Task list: add, start / pause, done, delete | `add.html`, `show.html`, `edit.html` |
-| [`add.html`](../../add.html) | `index.html` | New Task form | `index.html` |
-| [`show.html`](../../show.html) | `index.html` | One Task's details; needs a `SelectedTask` | `edit.html`, `index.html` |
-| [`edit.html`](../../edit.html) | `index.html` | Change a Task; needs a `SelectedTask` | `index.html` |
+| [`index.html`](../../index.html) | — | Task list: add, start / pause, done, delete | `add.html`, `show.html`, `edit.html`, `login.html` |
+| [`add.html`](../../add.html) | `index.html` | New Task form | `index.html`, `login.html` |
+| [`show.html`](../../show.html) | `index.html` | One Task's details; needs a `SelectedTask` | `edit.html`, `index.html`, `login.html` |
+| [`edit.html`](../../edit.html) | `index.html` | Change a Task; needs a `SelectedTask` | `index.html`, `login.html` |
+| [`login.html`](../../login.html) | — | Sign in or create an account; every other task page sends you here without a session, and on sign-out | `index.html`, or the page named in `?next=` |
 | [`docs/index.html`](../../docs/index.html) | — | Renders `.ai/` | — |
 
 ## ADRs
@@ -229,3 +233,18 @@ it applied and unrecorded; down files are hand-written and can drift from the up
 and filter `user_id = ?`, so a Timer's owner is its Task's. Rejected:
 `time_entries.user_id` as well — the owner stored twice can drift. Cost: every
 timer query carries a join.
+
+### ADR-019 — The browser keeps the access token in memory and renews it on every page load
+**2026-11-21 · Accepted** (TASK-026). `src/api-client.js` holds the access token in a
+module variable. Every page starts without one, so its first API call does
+`POST /api/auth/refresh` with the cookie; all calls of a page share that one refresh,
+because a second one would spend the same refresh token and count as reuse (I-13).
+No session → `login.html?next=<page>`. The API host is the page's own host on port
+3000, so page and API are one site and the `SameSite=Strict` cookie is sent; in
+development the API answers CORS with the exact `localhost`/`127.0.0.1` origin and
+`Allow-Credentials` instead of `*`. Rejected: the token in `sessionStorage` — one
+refresh per 15 minutes instead of per page, but readable by any script (ADR-016's
+reason); a single-page app — undoes ADR-006. Cost: one extra request per page load;
+two tabs loading at the same moment, or a reload while a refresh is in flight, can
+spend one token twice and sign the user out everywhere; pages served from any other
+host get no CORS headers.

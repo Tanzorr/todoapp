@@ -26,9 +26,10 @@ the server. Neither has a bundler.
 | API | `cd backend && npm start` | `http://localhost:3000` (`/health`, `/api/...`) |
 | Static frontend | `python3 -m http.server 8080` from the root | `http://localhost:8080` |
 
-ES modules do not load from `file://`, so the frontend must be served. CORS `*`
-is enabled only when `NODE_ENV=development`. The API base URL is hard-coded in
-`src/api-client.js`.
+ES modules do not load from `file://`, so the frontend must be served. CORS for
+`http://localhost:*` and `http://127.0.0.1:*`, with credentials, is enabled only
+when `NODE_ENV=development`. `src/api-client.js` calls the page's own host on
+port 3000 (ADR-019).
 
 ## Environment (`backend/.env`)
 

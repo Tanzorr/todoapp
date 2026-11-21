@@ -16,7 +16,10 @@ do not literally name.
 - ES modules, **named exports only**, no default exports, no `require`.
 - File placement: DOM creation → `dom-elements.js` · handlers → `actions.js` ·
   list rendering → `render.js` · constants and UI text → `constants.js` ·
-  input rules → `validations.js` · HTTP → `api-client.js` only.
+  input rules → `validations.js` · HTTP → `api-client.js` only · sign-in form →
+  `auth-form.js` · header email and sign-out → `account.js`.
+- A task page calls `initAccount()`; its first API call then renews the session or
+  sends the user to `login.html` (ADR-019). Never store the access token.
 - User text via `textContent` (I-8). `innerHTML` only to clear (`= ''`).
 - API failure → `try/catch` → `alert(err.message)` (ADR-005).
 - Show what the API reports; do not keep a parallel state the server also has (I-3, I-4).

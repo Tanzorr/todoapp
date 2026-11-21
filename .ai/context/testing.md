@@ -46,10 +46,11 @@ needs `-H "Authorization: Bearer $TOKEN"`, where `$TOKEN` is the `accessToken` f
 | T-6 | Total | `GET …/$T/timer` → `totalSeconds` ≈ sum of intervals, `isRunning` matches | I-3, I-4, S-1 |
 | T-7 | Delete cascades | `DELETE …/$T` → 204; `SELECT COUNT(*) FROM time_entries WHERE task_id=$T` → 0 | I-5, S-4 |
 | T-8 | Unknown route | `curl -s localhost:3000/nope` → 404 ApiError | I-7 |
-| T-9 | Browser: add → list | add page → task appears on index after redirect | V-3 |
+| T-9 | Browser: add → list | signed in: add page → task appears on index after redirect | V-3 |
 | T-10 | Browser: timer survives reload | start, wait 5 s, reload → still running, keeps counting | **S-2** |
 | T-11 | Browser: delete while running | row disappears, no console error, no further ticks | I-5 |
 | T-12 | Browser: HTML in title | title `<b>x</b>` renders as literal text | I-8 |
+| T-13 | Browser: session | signed out, `index.html` → `login.html?next=index.html`; register → index with the email in the header; reload keeps you signed in; Sign out → `login.html`, and `index.html` sends you back there | V-6, I-1, I-13 |
 
 **T-4/T-5/T-6 are the core** — they prove V-1. Run them for any change to
 `modules/timer/`, `src/timer.js` or `src/api-client.js`.

@@ -4,6 +4,9 @@ import { taskValidation } from './validations.js';
 import { form, description, title } from './dom-elements.js';
 import { getTask, updateTask } from './api-client.js';
 import { initPageAction } from './action-button.js';
+import { initAccount } from './account.js';
+
+initAccount();
 
 const taskId = getTaskId();
 

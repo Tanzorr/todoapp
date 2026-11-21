@@ -10,7 +10,7 @@ Configures and exports the Express application instance. Sets up middleware (COR
 
 ## Behavior / business rules
 
-- **CORS:** In development (`NODE_ENV === 'development'`), allows all origins for GET, POST, PUT, DELETE with `Content-Type` and `Authorization` headers. Credentials (the refresh cookie) are not allowed cross-origin yet — the frontend sign-in ticket decides that. Responds to preflight (`OPTIONS`) with `204 No Content`. In production, no CORS middleware is installed.
+- **CORS:** In development (`NODE_ENV === 'development'`), a request whose `Origin` is `http://localhost[:port]` or `http://127.0.0.1[:port]` gets that exact origin back in `Access-Control-Allow-Origin` with `Access-Control-Allow-Credentials: true`, so the pages on `:8080` can send the refresh cookie (ADR-019). Any other origin gets no allow-origin header. Every response carries `Vary: Origin`; allowed methods GET, POST, PUT, DELETE; allowed headers `Content-Type`, `Authorization`. Responds to preflight (`OPTIONS`) with `204 No Content`. In production, no CORS middleware is installed.
 - **Body parsing:** All requests are parsed as JSON via `express.json()`.
 - **Health endpoint (`GET /health`):** Returns `{ status: 'ok', timestamp: '<ISO8601>' }` with `200 OK`. Useful for load balancers and monitoring.
 - **API routes:** Auth API at `/api/auth` (register, login, refresh, logout, me); Tasks API at `/api/tasks` (includes nested timer routes) behind `authenticate`, so every Task and Timer route answers `401` without a valid access token.

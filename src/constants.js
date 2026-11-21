@@ -64,3 +64,24 @@ export const ALERTS = {
     stopFailed: "Couldn't stop the timer.",
     doneFailed: "Couldn't update the task.",
 };
+
+export const SIGN_IN_PAGE = 'login.html';
+
+export const AUTH_MODES = {
+    signIn: {
+        heading: 'Sign in',
+        submit: 'Sign in',
+        switchTo: 'register',
+        switchText: 'Create an account',
+        passwordAutocomplete: 'current-password',
+        passwordHint: '',
+    },
+    register: {
+        heading: 'Create an account',
+        submit: 'Create account',
+        switchTo: 'signIn',
+        switchText: 'I already have an account',
+        passwordAutocomplete: 'new-password',
+        passwordHint: 'At least 8 characters.',
+    },
+};

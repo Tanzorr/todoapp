@@ -3,6 +3,9 @@ import { getTaskId } from './data.js';
 import { getTask, getTimerTotal } from './api-client.js';
 import { taskShowDomElement } from './dom-elements.js';
 import { initPageAction } from './action-button.js';
+import { initAccount } from './account.js';
+
+initAccount();
 
 const taskId = getTaskId();
 

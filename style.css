@@ -86,6 +86,114 @@ a:focus-visible, button:focus-visible, input:focus, textarea:focus {
     font-weight: 600;
 }
 
+.site-header-end,
+.account {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.account {
+    gap: 12px;
+}
+
+.account-email {
+    overflow: hidden;
+    color: #d6d6d0;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.account-sign-out {
+    min-height: 36px;
+    padding: 0 12px;
+    flex-shrink: 0;
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    border-radius: 8px;
+    background: transparent;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.account-sign-out:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.site-header .account-sign-out:focus-visible {
+    outline-color: #fff;
+}
+
+@media (max-width: 520px) {
+    .account-email {
+        display: none;
+    }
+}
+
+/* Sign-in page */
+.auth-form {
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.auth-heading {
+    font-size: 26px;
+}
+
+.auth-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.auth-label {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.auth-form .auth-input {
+    margin-bottom: 0;
+    cursor: text;
+}
+
+.auth-input[aria-invalid='true'] {
+    border-color: var(--danger);
+}
+
+.auth-hint {
+    color: var(--ink-muted);
+    font-size: 14px;
+}
+
+.auth-field-error,
+.auth-error {
+    color: var(--danger);
+    font-size: 14px;
+}
+
+.auth-hint:empty,
+.auth-field-error:empty,
+.auth-error:empty {
+    display: none;
+}
+
+.auth-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+}
+
 .page-main {
     flex: 1;
     width: 100%;
