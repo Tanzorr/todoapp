@@ -16,6 +16,7 @@ after(h.stopServer);
 const register = (body) => h.request('POST', '/api/auth/register', { body });
 const login = (body) => h.request('POST', '/api/auth/login', { body });
 const refresh = (cookie) => h.request('POST', '/api/auth/refresh', { cookie });
+const USER_KEYS = ['createdAt', 'email', 'id', 'name', 'role'];
 
 async function storedToken(cookie) {
     return authRepo.findByHash(hashToken(cookie.split('=')[1]));
@@ -27,7 +28,8 @@ describe('AC-2 register', () => {
         const res = await register({ email: `  ${email.toUpperCase()}  `, password: h.PASSWORD });
 
         assert.equal(res.status, 201);
-        assert.deepEqual(Object.keys(res.body).sort(), ['createdAt', 'email', 'id']);
+        assert.deepEqual(Object.keys(res.body).sort(), USER_KEYS);
+        assert.equal(res.body.role, 'user');
         assert.equal(res.body.email, email.toLowerCase());
     });
 
@@ -69,7 +71,7 @@ describe('AC-4 login', () => {
 
         assert.equal(res.status, 200);
         assert.equal(typeof res.body.accessToken, 'string');
-        assert.deepEqual(Object.keys(res.body.user).sort(), ['createdAt', 'email', 'id']);
+        assert.deepEqual(Object.keys(res.body.user).sort(), USER_KEYS);
         for (const attribute of ['HttpOnly', 'Secure', 'SameSite=Strict', 'Max-Age=604800']) {
             assert.ok(res.setCookie.includes(attribute), `${attribute} in ${res.setCookie}`);
         }

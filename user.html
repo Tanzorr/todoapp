@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Profile — My todo</title>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<header class="site-header">
+    <div class="site-header-inner">
+        <a class="site-name" href="index.html">My todo</a>
+        <div class="account" hidden>
+            <a class="account-users" href="users.html" hidden>Users</a>
+            <a class="account-name" href="user.html"></a>
+            <button class="account-sign-out" type="button">Sign out</button>
+        </div>
+    </div>
+</header>
+<main class="page-main page-narrow">
+    <h1 class="page-title profile-heading"></h1>
+    <section class="profile-summary" hidden></section>
+
+    <div class="profile-forms" hidden>
+        <form class="card-form profile-form" data-action="name" novalidate>
+            <h2 class="form-title">Name</h2>
+            <div class="field">
+                <label class="field-label" for="profile-name">Name</label>
+                <input class="input field-input" id="profile-name" name="name" type="text"
+                       maxlength="80" autocomplete="name" aria-describedby="profile-name-error"/>
+                <p class="field-error" id="profile-name-error"></p>
+            </div>
+            <p class="form-error" role="alert"></p>
+            <p class="form-status" role="status"></p>
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit">Save name</button>
+            </div>
+        </form>
+
+        <form class="card-form profile-form" data-action="email" novalidate>
+            <h2 class="form-title">Email</h2>
+            <div class="field">
+                <label class="field-label" for="profile-email">New email</label>
+                <input class="input field-input" id="profile-email" name="email" type="email"
+                       autocomplete="email" aria-describedby="profile-email-error"/>
+                <p class="field-error" id="profile-email-error"></p>
+            </div>
+            <div class="field">
+                <label class="field-label" for="profile-email-password">Current password</label>
+                <input class="input field-input" id="profile-email-password" name="currentPassword"
+                       type="password" autocomplete="current-password"
+                       aria-describedby="profile-email-password-error"/>
+                <p class="field-error" id="profile-email-password-error"></p>
+            </div>
+            <p class="form-error" role="alert"></p>
+            <p class="form-status" role="status"></p>
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit">Change email</button>
+            </div>
+        </form>
+
+        <form class="card-form profile-form" data-action="password" novalidate>
+            <h2 class="form-title">Password</h2>
+            <div class="field">
+                <label class="field-label" for="profile-password-current">Current password</label>
+                <input class="input field-input" id="profile-password-current"
+                       name="currentPassword" type="password" autocomplete="current-password"
+                       aria-describedby="profile-password-current-error"/>
+                <p class="field-error" id="profile-password-current-error"></p>
+            </div>
+            <div class="field">
+                <label class="field-label" for="profile-password-new">New password</label>
+                <input class="input field-input" id="profile-password-new" name="newPassword"
+                       type="password" autocomplete="new-password"
+                       aria-describedby="profile-password-new-hint profile-password-new-error"/>
+                <p class="field-hint" id="profile-password-new-hint">At least 8 characters. Signs you out on every other device.</p>
+                <p class="field-error" id="profile-password-new-error"></p>
+            </div>
+            <p class="form-error" role="alert"></p>
+            <p class="form-status" role="status"></p>
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit">Change password</button>
+            </div>
+        </form>
+
+        <form class="card-form profile-form danger-zone" data-action="delete" novalidate>
+            <h2 class="form-title">Delete account</h2>
+            <p class="field-hint">Deletes your account with every task and all tracked time. This cannot be undone.</p>
+            <div class="field">
+                <label class="field-label" for="profile-delete-password">Current password</label>
+                <input class="input field-input" id="profile-delete-password"
+                       name="currentPassword" type="password" autocomplete="current-password"
+                       aria-describedby="profile-delete-password-error"/>
+                <p class="field-error" id="profile-delete-password-error"></p>
+            </div>
+            <p class="form-error" role="alert"></p>
+            <div class="form-actions">
+                <button class="btn btn-solid-danger" type="submit">Delete account</button>
+            </div>
+        </form>
+    </div>
+</main>
+<footer class="site-footer">2025 alex@ukr.net</footer>
+<script type="module" src="src/user.js"></script>
+</body>
+</html>

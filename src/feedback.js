@@ -67,3 +67,26 @@ export function showInlineError(slot, message) {
 export function clearInlineError(slot) {
     slot.replaceChildren();
 }
+
+// Account forms: each input has a <p id="<input id>-error">, the form one .form-error.
+export function clearFormErrors(form) {
+    form.querySelectorAll('[aria-invalid]').forEach((input) => {
+        input.removeAttribute('aria-invalid');
+    });
+    form.querySelectorAll('.field-error, .form-error').forEach((slot) => {
+        slot.textContent = '';
+    });
+}
+
+// A 400 names the field it is about; anything else belongs to the whole form.
+export function showFormError(form, err) {
+    const input = err.field ? form.elements[err.field] : null;
+    const slot = input ? form.querySelector(`#${input.id}-error`) : null;
+    if (!slot) {
+        form.querySelector('.form-error').textContent = err.message;
+        return;
+    }
+    input.setAttribute('aria-invalid', 'true');
+    slot.textContent = err.message;
+    input.focus();
+}

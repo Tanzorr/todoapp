@@ -51,6 +51,15 @@ SET user_id = (SELECT id FROM users WHERE email = 'you@example.com')
 WHERE user_id = (SELECT id FROM users WHERE email = 'legacy@todo.invalid');
 ```
 
+### The admin
+
+An admin can read the list of Users and any User's profile; nothing more. No
+route changes a role, so make the first admin in MySQL:
+
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'you@example.com';
+```
+
 ## Run the server
 
 ```bash
@@ -105,9 +114,18 @@ curl -s localhost:3000/api/tasks -H "Authorization: Bearer $TOKEN"
 | GET | `/api/tasks/:id/timer` | Bearer | Total and running state |
 | POST | `/api/tasks/:id/timer/start` | Bearer | Start the Timer |
 | POST | `/api/tasks/:id/timer/stop` | Bearer | Stop the Timer |
+| GET | `/api/users` | Bearer, admin | Every User with `taskCount` |
+| GET | `/api/users/me` | Bearer | Your profile with `taskCount` |
+| GET | `/api/users/:id` | Bearer | A profile — yours, or anyone's for the admin |
+| PATCH | `/api/users/me` | Bearer | Change your name `{ name }` (`''` clears it) |
+| PUT | `/api/users/me/email` | Bearer | `{ email, currentPassword }` |
+| PUT | `/api/users/me/password` | Bearer | `{ currentPassword, newPassword }` → `{ accessToken, user }` + new cookie; signs out everywhere else |
+| DELETE | `/api/users/me` | Bearer | `{ currentPassword }` → `204`; deletes your Tasks and time too |
 
-Another User's Task answers `404`, exactly like a missing one. Register and login
-are limited to 5 requests per IP per minute (`429`).
+Another User's Task, or another User for a non-admin, answers `404`, exactly like a
+missing one. A wrong `currentPassword` is `400` with `field: "currentPassword"`.
+Register, login and the three password-checked `/api/users/me` routes share a limit
+of 5 requests per IP per minute (`429`).
 
 Every error is `{ "error": { "status", "code", "message", "field"? } }`, e.g.
 `{ "error": { "status": 401, "code": "UNAUTHORIZED", "message": "Authentication required" } }`.
@@ -129,7 +147,7 @@ src/
     not-found.js         — 404 handler
   modules/
     auth/                — register, login, refresh, logout, me
-    users/               — users repository
+    users/               — admin's list, profiles, name / email / password / delete
     tasks/               — tasks CRUD, per User
     timer/               — timer start/stop/total, per User
   app.js                 — Express app

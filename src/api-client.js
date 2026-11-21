@@ -100,6 +100,44 @@ export async function getCurrentUser() {
     return apiFetch('/auth/me');
 }
 
+export async function getUsers() {
+    return apiFetch('/users');
+}
+
+export async function getMyProfile() {
+    return apiFetch('/users/me');
+}
+
+export async function getUser(id) {
+    return apiFetch(`/users/${id}`);
+}
+
+export async function updateName(name) {
+    return apiFetch('/users/me', { method: 'PATCH', body: JSON.stringify({ name }) });
+}
+
+export async function changeEmail(email, currentPassword) {
+    return apiFetch('/users/me/email', {
+        method: 'PUT',
+        body: JSON.stringify({ email, currentPassword }),
+    });
+}
+
+// Every other session ends; this one continues with the token the response brings.
+export async function changePassword(currentPassword, newPassword) {
+    const data = await apiFetch('/users/me/password', {
+        method: 'PUT',
+        body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    accessToken = data.accessToken;
+    return data.user;
+}
+
+export async function deleteAccount(currentPassword) {
+    await apiFetch('/users/me', { method: 'DELETE', body: JSON.stringify({ currentPassword }) });
+    accessToken = null;
+}
+
 export async function getTasks() {
     return apiFetch('/tasks');
 }

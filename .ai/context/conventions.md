@@ -17,7 +17,9 @@ do not literally name.
 - File placement: DOM creation → `dom-elements.js` · handlers → `actions.js` ·
   list rendering → `render.js` · constants and UI text → `constants.js` ·
   input rules → `validations.js` · HTTP → `api-client.js` only · sign-in form →
-  `auth-form.js` · header email and sign-out → `account.js`.
+  `auth-form.js` · profile forms → `profile-forms.js` · header name, Users link and
+  sign-out → `account.js`. Account forms show errors with `showFormError()` from
+  `feedback.js`: each input has a `<p id="<input id>-error">`, the form one `.form-error`.
 - A task page calls `initAccount()`; its first API call then renews the session or
   sends the user to `login.html` (ADR-019). Never store the access token.
 - User text via `textContent` (I-8). `innerHTML` only to clear (`= ''`).

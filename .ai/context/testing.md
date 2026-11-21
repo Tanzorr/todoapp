@@ -21,6 +21,7 @@ own process, one at a time, against an in-process app on a random port.
 | `test/auth.test.js` | TASK-025 AC-2…AC-8, AC-12 — register, login, refresh rotation and reuse, logout, `/me` |
 | `test/access-control.test.js` | AC-9 (every `/api/tasks` route → `401`), AC-10 (another User's Task → `404`, unchanged) — I-11 |
 | `test/rate-limit.test.js` | AC-11 — 6th register/login per minute → `429` |
+| `test/users.test.js` | TASK-027 AC-2…AC-7 — admin list, who reads whom (I-14), name, email, password, delete |
 
 - `test/helpers.js` forces `DB_NAME=todo_app_test`, refuses any database not ending in
   `_test`, migrates it up, and generates throwaway JWT secrets — `backend/.env`
@@ -51,6 +52,7 @@ needs `-H "Authorization: Bearer $TOKEN"`, where `$TOKEN` is the `accessToken` f
 | T-11 | Browser: delete while running | row disappears, no console error, no further ticks | I-5 |
 | T-12 | Browser: HTML in title | title `<b>x</b>` renders as literal text | I-8 |
 | T-13 | Browser: session | signed out, `index.html` → `login.html?next=index.html`; register → index with the email in the header; reload keeps you signed in; Sign out → `login.html`, and `index.html` sends you back there | V-6, I-1, I-13 |
+| T-14 | Browser: profile and users | as a user: header name → `user.html`, save a name (header follows), wrong current password shows under its field without signing out; `users.html` shows the admin-only notice. As the admin: **Users** link → list → a row opens a read-only profile | V-6, I-14 |
 
 **T-4/T-5/T-6 are the core** — they prove V-1. Run them for any change to
 `modules/timer/`, `src/timer.js` or `src/api-client.js`.

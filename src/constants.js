@@ -67,6 +67,32 @@ export const ALERTS = {
 
 export const SIGN_IN_PAGE = 'login.html';
 
+export const PROFILE_PAGE = 'user.html';
+
+export const ROLE_TEXT = {
+    admin: 'Admin',
+    user: 'User',
+};
+
+export const PROFILE_TEXT = {
+    ownHeading: 'Your profile',
+    noName: '—',
+    saved: 'Saved.',
+    notFound: 'User not found.',
+    labels: {
+        name: 'Name',
+        email: 'Email',
+        role: 'Role',
+        createdAt: 'Member since',
+        taskCount: 'Tasks',
+    },
+};
+
+export const USERS_TEXT = {
+    adminOnly: 'Only an admin can see this page.',
+    taskCount: (count) => `${count} ${count === 1 ? 'task' : 'tasks'}`,
+};
+
 export const AUTH_MODES = {
     signIn: {
         heading: 'Sign in',

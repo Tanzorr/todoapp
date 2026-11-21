@@ -17,6 +17,9 @@ Registration, sign-in, refresh-token rotation and sign-out (ADR-016). Knows noth
   - **Throws:** `401` `Invalid or expired refresh token` when the token is missing, fails verification, is unknown, or was already revoked. In the last case **every** token of that User is revoked first (I-13).
 - **`logout(refreshToken)`** (async): Revokes the token's row if it exists. Never throws for a missing or unknown token.
 - **`getCurrentUser(userId)`** (async): The `User`, or `401` `Authentication required` if it no longer exists.
+- **`issueSession(user)`** (async): `{ accessToken, refreshToken, user }`; stores the refresh token's hash. Used by `login`, `refresh` and the password change in `users.service.js`.
+- **`hashPassword(password)`** (async): bcrypt hash at `BCRYPT_ROUNDS`.
+- **`verifyPassword(userId, password)`** (async): `true` if it matches the User's hash; `false` for a wrong password or a missing User. Used for the current-password check (I-12).
 
 ## Behavior / business rules
 
@@ -29,4 +32,4 @@ Registration, sign-in, refresh-token rotation and sign-out (ADR-016). Knows noth
 ## Dependencies
 
 - **Imports:** `bcryptjs`, `../users/users.repository`, `./auth.repository`, `./auth.tokens`, `./auth.validation`, `../../config/env`
-- **Called by:** `auth.controller.js`
+- **Called by:** `auth.controller.js`, `users.service.js`

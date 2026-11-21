@@ -25,7 +25,7 @@ Applies to docs, tickets, commit messages, code comments and replies alike.
 ## 1. ONTOLOGY
 
 The domain model lives in [`.ai/context/ontology.md`](.ai/context/ontology.md) —
-concepts, relations, invariants I-1…I-13, open questions.
+concepts, relations, invariants I-1…I-14, open questions.
 
 **Concepts:** `Task` · `TimeEntry` · `Timer` · `TrackedTime` · `TaskItem` ·
 `SelectedTask` · `ApiError` · `User` · `RefreshToken`

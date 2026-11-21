@@ -14,7 +14,7 @@ The domain model. Says what exists and how it relates; where it lives in code is
 | **TaskItem** | no — DOM | The row representing one Task on the list page, carrying its local ticking display. |
 | **SelectedTask** | `localStorage.taskId` | Which Task the show/edit page is about. Navigation state only. |
 | **ApiError** | no — wire | `{ error: { status, code, message, field? } }` — every non-2xx API response. `code` is the status name, e.g. `NOT_FOUND`. |
-| **User** | `users` table | A person who signs in with an email and password and owns Tasks. |
+| **User** | `users` table | A person who signs in with an email and password and owns Tasks. Has an optional `name` and a `role`: `user`, or `admin`, who may read other Users. |
 | **RefreshToken** | `refresh_tokens` table | A 7-day credential, kept by the browser as an httpOnly cookie, that buys a new 15-minute access token. |
 
 ## 2. Relations
@@ -44,8 +44,9 @@ User        --hasRefreshToken-->  RefreshToken  (1 : n, cascade on delete)
 | **I-9** | Credentials and JWT secrets live in `backend/.env`, which is never committed and never read by the agent. *Currently violated — TASK-013.* |
 | **I-10** | SQL lives only in `*.repository.js` and always uses `?` placeholders — no string-built values. |
 | **I-11** | Every Task has exactly one owning User. Every Task and TimeEntry query is scoped to the requesting User; another User's Task answers `404`, never `403`. |
-| **I-12** | `password_hash` never leaves `users.repository.js` except to the sign-in check, and is never in a response. |
+| **I-12** | `password_hash` never leaves `users.repository.js` except to a password check (sign-in, or the current password confirming a change), and is never in a response. |
 | **I-13** | A RefreshToken is stored only as a SHA-256 hash and works once: using it revokes it. Using a revoked one revokes all of that User's RefreshTokens. |
+| **I-14** | Only an admin sees other Users, and only to read them. A non-admin asking for another User, or for the list, gets `404`. No route changes another User. |
 
 ## 4. Open Questions
 

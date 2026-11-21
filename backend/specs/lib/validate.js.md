@@ -19,4 +19,4 @@ Runs a `zod` schema and turns the first failure into the backend's `400` error, 
 ## Dependencies
 
 - **Imports:** none (receives the schema).
-- **Called by:** `auth.validation.js`, `tasks.validation.js`, `timer.validation.js`.
+- **Called by:** `auth.validation.js`, `tasks.validation.js`, `timer.validation.js`, `users.validation.js`.

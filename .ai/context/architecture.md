@@ -12,7 +12,8 @@ Browser  (index / add / edit / show .html)
   DOM factories   src/dom-elements.js                           create nodes, no fetch
   handlers        src/actions.js · src/action-button.js         click → API → DOM
   timer display   src/timer.js                                  per-TaskItem tick, start/stop
-  sign-in         src/login.js · auth-form.js · account.js      login page; header email + sign out
+  sign-in         src/login.js · auth-form.js · account.js      login page; header name, Users, sign out
+  users, profile  src/users.js · user.js · profile-forms.js     admin's list; own profile forms
   API adapter     src/api-client.js                             the only fetch() (I-7); holds the
                                                                 access token in memory (ADR-019)
   config / rules  src/constants.js · src/validations.js · src/data.js
@@ -64,7 +65,7 @@ Adding a Task, end to end:
 | `TaskItem` | `render.addTodo()` + `dom-elements.createControls()`; `.stopTimer` property on the node |
 | `SelectedTask` | `src/data.js` (`saveTaskId` / `getTaskId`) |
 | `ApiError` | `backend/src/middleware/error-handler.js`; thrown as `Error` with `.status`, `.field`; `code` derived from the status |
-| `User` | `users` table · `backend/src/modules/users/users.repository.js` · `req.user` set by `middleware/authenticate.js` |
+| `User` | `users` table · `backend/src/modules/users/*` (admin check and current-password check in `users.service.js`) · `req.user` set by `middleware/authenticate.js` |
 | `RefreshToken` | `refresh_tokens` table · `backend/src/modules/auth/` (`auth.tokens.js` signs, `auth.repository.js` stores the hash, `auth.cookies.js` carries it) |
 
 ## API Surface
@@ -85,10 +86,19 @@ Adding a Task, end to end:
 | GET | `/api/tasks/:id/timer` | 200 `{ taskId, totalSeconds, isRunning }` |
 | POST | `/api/tasks/:id/timer/start` | 201 · 409 if running |
 | POST | `/api/tasks/:id/timer/stop` | 200 `{ …, elapsedSeconds }` · 409 if stopped |
+| GET | `/api/users` | 200 `UserSummary[]` (`User` + `taskCount`) — admin only, else 404 (I-14) |
+| GET | `/api/users/me` | 200 own `UserSummary` |
+| GET | `/api/users/:id` | 200 `UserSummary` — yourself or an admin, else 404 |
+| PATCH | `/api/users/me` | 200 `User` — body `{ name }`, 0–80 chars |
+| PUT | `/api/users/me/email` | 200 `User` — body `{ email, currentPassword }` · 409 if taken |
+| PUT | `/api/users/me/password` | 200 `{ accessToken, user }` + new cookie — body `{ currentPassword, newPassword }`; every other session ends |
+| DELETE | `/api/users/me` | 204, cookie cleared — body `{ currentPassword }`; Tasks and time go with it |
 
-Every `/api/tasks` route needs `Authorization: Bearer <accessToken>` (ADR-016).
-Errors: 400 invalid input, 401 no or bad token, 404 missing task/route or another
-User's Task (I-11), 409 timer state or email taken, 429 rate limit, 500 otherwise.
+`User` is `{ id, email, name, role, createdAt }`. Every `/api/tasks` and `/api/users`
+route needs `Authorization: Bearer <accessToken>` (ADR-016).
+Errors: 400 invalid input or wrong current password, 401 no or bad token, 404
+missing task/route, another User's Task (I-11) or another User (I-14), 409 timer
+state or email taken, 429 rate limit, 500 otherwise.
 
 ## Site Map
 
@@ -102,6 +112,8 @@ the breadcrumbs.
 | [`show.html`](../../show.html) | `index.html` | One Task's details; needs a `SelectedTask` | `edit.html`, `index.html`, `login.html` |
 | [`edit.html`](../../edit.html) | `index.html` | Change a Task; needs a `SelectedTask` | `index.html`, `login.html` |
 | [`login.html`](../../login.html) | — | Sign in or create an account; every other task page sends you here without a session, and on sign-out | `index.html`, or the page named in `?next=` |
+| [`user.html`](../../user.html) | `index.html` | Your profile: name, email, password, delete account. `?id=` another User: read-only, admin only | `login.html` |
+| [`users.html`](../../users.html) | `index.html` | Every User, for the admin; anyone else sees a notice | `user.html`, `login.html` |
 | [`docs/index.html`](../../docs/index.html) | — | Renders `.ai/` | — |
 
 ## ADRs
@@ -248,3 +260,16 @@ reason); a single-page app — undoes ADR-006. Cost: one extra request per page 
 two tabs loading at the same moment, or a reload while a refresh is in flight, can
 spend one token twice and sign the user out everywhere; pages served from any other
 host get no CORS headers.
+
+### ADR-020 — One `admin` role, read-only, checked against the database per request
+**2026-11-21 · Accepted** (TASK-027). `users.role` is `user` or `admin`; the first
+admin is made by `UPDATE`, and no route changes a role. `users.service.js` reads the
+requester's role on each request that needs it, and a non-admin gets `404` (I-14).
+The profile changes only its owner: email, password and deletion need the current
+password, and a wrong one answers `400` `field: "currentPassword"` — `401` would make
+the client think the session expired and sign the user out. Changing the password
+revokes every RefreshToken and starts a new session for the browser that asked.
+Rejected: the role inside the access token — a demoted admin would keep reading for
+up to 15 minutes; an admin who edits or deletes others — the owner chose read-only
+(D3); `403` for non-admins — it confirms the list exists. Cost: one extra query on
+admin routes; with only SQL to change roles, deleting the last admin leaves none.

@@ -20,7 +20,7 @@ if (NODE_ENV === 'development') {
             res.setHeader('Access-Control-Allow-Credentials', 'true');
         }
         res.setHeader('Vary', 'Origin');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         if (req.method === 'OPTIONS') return res.sendStatus(204);
         next();
@@ -37,6 +37,7 @@ app.get('/health', (req, res) => {
 // API routes
 app.use('/api/auth', require('./modules/auth/auth.routes'));
 app.use('/api/tasks', authenticate, require('./modules/tasks/tasks.routes'));
+app.use('/api/users', authenticate, require('./modules/users/users.routes'));
 
 // 404 and error handlers must be last
 app.use(notFound);

@@ -9,6 +9,7 @@
 - **`validateRegistration(body)`**: Returns `{ email, password }` with `email` trimmed and lowercased.
 - **`validateLogin(body)`**: Same shape.
 - **Throws** (both): `400` with `field` — see the rules.
+- **`emailSchema`**, **`newPasswordSchema`**: the email and register-password rules below, shared with `users.validation.js` so a changed email or password follows the same rules.
 
 ## Behavior / business rules
 
@@ -26,4 +27,4 @@
 ## Dependencies
 
 - **Imports:** `zod`, `../../lib/validate`
-- **Called by:** `auth.service.js`
+- **Called by:** `auth.service.js`, `users.validation.js`

@@ -80,6 +80,8 @@ So no feature exists without a reason, and no reason goes unbuilt.
 | Errors have one shape the UI can show | V-3, V-5 | `ApiError`, I-7 |
 | Register and sign in with email and password; sign out ends the session | V-6 | `User`, `RefreshToken`, I-12, I-13 |
 | See and change only your own Tasks and time | **V-6** | `User`, `Task`, Invariant **I-11** |
+| Change your own name, email and password, or delete your account | V-6 | `User`, I-12, I-14 |
+| An admin sees who has an account | V-6 | `User.role`, I-14 |
 
 The two rows that matter most are **I-2** and **I-4**. Together they make the
 tracked time a fact stored in the database rather than a counter running in a
@@ -102,7 +104,8 @@ Observable statements, checkable against a running system:
 Named explicitly so scope cannot creep in through the back door:
 
 - **Not** a team tool. Each User sees only their own Tasks (V-6); no sharing,
-  roles, teams, OAuth, password reset or email verification.
+  teams, OAuth, password reset or email verification. The one role beyond `user`
+  is `admin`, who can read the list of Users and nothing more (I-14).
 - **Not** real-time. No WebSockets or SSE; a second tab sees changes on reload.
 - **Not** a framework app. No React/Vue, bundler or TypeScript — that would
   undo V-4.

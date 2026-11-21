@@ -7,27 +7,29 @@ const MAX_EMAIL_LENGTH = 254;
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_PASSWORD_BYTES = 72;
 
-const email = z
+const emailSchema = z
     .string({ error: 'Email is required' })
     .trim()
     .toLowerCase()
     .max(MAX_EMAIL_LENGTH, { error: `Email must be ${MAX_EMAIL_LENGTH} characters or fewer` })
     .pipe(z.email({ error: 'Email must be a valid email address' }));
 
+const newPasswordSchema = z
+    .string({ error: 'Password is required' })
+    .min(MIN_PASSWORD_LENGTH, {
+        error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters`,
+    })
+    .refine((value) => Buffer.byteLength(value, 'utf8') <= MAX_PASSWORD_BYTES, {
+        error: `Password must be ${MAX_PASSWORD_BYTES} bytes or fewer`,
+    });
+
 const registrationSchema = z.object({
-    email,
-    password: z
-        .string({ error: 'Password is required' })
-        .min(MIN_PASSWORD_LENGTH, {
-            error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters`,
-        })
-        .refine((value) => Buffer.byteLength(value, 'utf8') <= MAX_PASSWORD_BYTES, {
-            error: `Password must be ${MAX_PASSWORD_BYTES} bytes or fewer`,
-        }),
+    email: emailSchema,
+    password: newPasswordSchema,
 });
 
 const loginSchema = z.object({
-    email,
+    email: emailSchema,
     password: z.string({ error: 'Password is required' }).min(1, { error: 'Password is required' }),
 });
 
@@ -39,4 +41,4 @@ function validateLogin(body) {
     return validate(loginSchema, body);
 }
 
-module.exports = { validateRegistration, validateLogin };
+module.exports = { emailSchema, newPasswordSchema, validateRegistration, validateLogin };

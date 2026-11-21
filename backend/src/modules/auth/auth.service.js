@@ -30,9 +30,19 @@ async function issueSession(user) {
     return { accessToken: tokens.signAccessToken(user.id), refreshToken: token, user };
 }
 
+function hashPassword(password) {
+    return bcrypt.hash(password, BCRYPT_ROUNDS);
+}
+
+async function verifyPassword(userId, password) {
+    const hash = await usersRepo.findPasswordHash(userId);
+    if (hash === null) return false;
+    return bcrypt.compare(password, hash);
+}
+
 async function register(body) {
     const { email, password } = validateRegistration(body);
-    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    const passwordHash = await hashPassword(password);
     const user = await usersRepo.create(email, passwordHash);
     if (!user) {
         const err = new Error('Email is already registered');
@@ -83,4 +93,13 @@ async function getCurrentUser(userId) {
     return user;
 }
 
-module.exports = { register, login, refresh, logout, getCurrentUser };
+module.exports = {
+    register,
+    login,
+    refresh,
+    logout,
+    getCurrentUser,
+    issueSession,
+    hashPassword,
+    verifyPassword,
+};
