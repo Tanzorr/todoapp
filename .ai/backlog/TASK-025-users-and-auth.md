@@ -52,7 +52,7 @@ every Decision as proposed, and the four dependencies below.**
 
 Run against `todo_app_test` unless stated; `$A`, `$B` are two registered users.
 
-- [ ] AC-1 — On the dev database with existing Tasks, `npm run migrate` applies 002–004
+- [x] AC-1 — On the dev database with existing Tasks, `npm run migrate` applies 002–004
       and every existing Task belongs to the seed user. On `todo_app_test`, migrating
       down to 001 and back up again succeeds.
 - [x] AC-2 — `POST /api/auth/register` → `201` with the user, no `password_hash`; email
@@ -81,7 +81,7 @@ Run against `todo_app_test` unless stated; `$A`, `$B` are two registered users.
       missing, under 32 chars, or the two are equal.
 - [x] AC-14 — `cd backend && npm test` covers AC-2, AC-4, AC-6, AC-7, AC-10 (the request's
       test list), exits non-zero on a failure, and leaves no users behind.
-- [ ] AC-15 — T-1…T-8 from [`testing.md`](../context/testing.md) still pass with a token.
+- [x] AC-15 — T-1…T-8 from [`testing.md`](../context/testing.md) still pass with a token.
 - [ ] AC-16 — `backend/README.md` documents setup and the auth endpoints;
       `backend/.env.example` lists every new key.
 
@@ -99,9 +99,12 @@ Run against `todo_app_test` unless stated; `$A`, `$B` are two registered users.
 
 | AC | Done | Missing | Blocked by |
 | :--- | :--- | :--- | :--- |
-| AC-1 | `todo_app_test`: 001→004, down to 001, up again; a pre-004 Task went to the seed user | `npm run migrate` on `todo_app` | `backend/.env` fails the secret check, so nothing starts |
-| AC-15 | T-1…T-8 with a token, in-process app on `todo_app_test`: all as expected | the same against `npm start` on `todo_app` | as above |
 | AC-16 | `backend/README.md` | `backend/.env.example` lines for `JWT_SECRET`, `JWT_REFRESH_SECRET`, `BCRYPT_ROUNDS=12`, `AUTH_RATE_LIMIT=5` | the agent's permissions deny reading or appending to it |
+
+AC-1 and AC-15 ran on `todo_app` with JWT secrets passed in the process environment,
+because `backend/.env` still fails the secret check: `npm run migrate` applied 001
+(recorded) and 002–004; all 4 existing Tasks went to `legacy@todo.invalid`, the 6
+TimeEntries stayed. T-1…T-8 with a token via curl against `npm start`: all as expected.
 
 **Steps** — branch `feature/auth`, one commit per step, body `Ticket: TASK-025`.
 
