@@ -35,7 +35,8 @@ do not literally name.
 - Errors: `const err = new Error(msg); err.status = 4xx; err.field = '…'; throw err;`
 - Repository: SQL with `?` placeholders only (I-10); map rows to camelCase.
 - Config only via `config/env.js`; never `process.env` elsewhere.
-- New migration = new numbered file `NNN_<what>.sql`, idempotent. Never edit an
+- New migration = new numbered file `NNN_<what>.sql` plus `NNN_<what>.down.sql` that
+  undoes it (`IF EXISTS` where MySQL allows). Each runs once (ADR-017). Never edit an
   applied one.
 - Changing a file's exported behaviour updates its spec in `backend/specs/` (ADR-008).
 

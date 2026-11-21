@@ -46,10 +46,12 @@ Read only through `backend/src/config/env.js`.
 npm run check                 # root: eslint + prettier --check
 npm run lint:fix              # root: eslint autofix
 npm run format                # root: prettier --write (reformats files)
-cd backend && npm run migrate # applies every .sql in db/migrations, in order
+cd backend && npm run migrate       # applies pending migrations, in order
+cd backend && npm run migrate:down  # undoes the last one; only on a *_test DB without -- --force
 cd backend && npm start
 curl -s localhost:3000/health
 ```
 
-`migrate` re-runs every file each time; migrations must stay idempotent
-(`CREATE TABLE IF NOT EXISTS`, guarded `ALTER`).
+`migrate` applies only files missing from `schema_migrations` (ADR-017). Run
+either command against another database with `DB_NAME=todo_app_test npm run …` —
+a variable already set wins over `backend/.env`.
