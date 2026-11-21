@@ -1,27 +1,34 @@
-<html lang="">
+<!doctype html>
+<html lang="en">
 <head>
-    <title>to do time trac</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tasks — My todo</title>
     <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-<header class="header">
-    <div class="container">
-        <h1 class="title"> My todo </h1>
+<header class="site-header">
+    <div class="site-header-inner">
+        <a class="site-name" href="index.html">My todo</a>
+        <span class="running-count" hidden>
+            <span class="dot"></span>
+            <span class="running-label"></span>
+        </span>
     </div>
 </header>
-<div class="content container">
-    <nav class="breadcrumbs"><a href="index.html">Home</a> / <span>Tasks</span></nav>
+<main class="page-main">
     <a class="edit-task-btn btn" href="./add.html">add page</a>
-    <div class="items-container">
+    <div class="list-card">
+        <div class="items-container"></div>
+        <div class="list-total" hidden>
+            <span class="list-total-label">Total</span>
+            <span class="list-total-value"></span>
+            <span class="list-total-spacer"></span>
+        </div>
     </div>
-</div>
-<footer class="footer">
-    <div class="container">
-        2025 alex@ukr.net
-    </div>
-</footer>
+</main>
+<footer class="site-footer">2025 alex@ukr.net</footer>
 <script type="module" src="src/index.js"></script>
 <button class="page-action-btn">add</button>
 </body>
 </html>
-

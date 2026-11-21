@@ -34,7 +34,7 @@ SelectedTask--refersTo-->         Task          (show / edit pages)
 | **I-3** | Timer state is derived from TimeEntry rows — never a column on `tasks`, never trusted from the browser. The UI shows what the API reports. |
 | **I-4** | TrackedTime is computed by the server. The browser's per-second tick is display only and is replaced by the server total on stop and on load. |
 | **I-5** | Deleting a Task deletes its TimeEntries (FK `ON DELETE CASCADE`), and its TaskItem stops ticking before the node is removed. |
-| **I-6** | A Task title is non-empty after trim and ≤ 200 chars. The server check is authoritative; the client check is a courtesy. |
+| **I-6** | A Task title is 1–200 chars after trim, on the add page, the edit page and the server alike. The server check is authoritative; the client check is a courtesy. |
 | **I-7** | Every API error is an ApiError. Every browser→API call goes through `src/api-client.js`. |
 | **I-8** | User text (`title`, `description`) reaches the DOM via `textContent` only, never `innerHTML`. |
 | **I-9** | Credentials live in `backend/.env`, which is never committed and never read by the agent. *Currently violated — TASK-013.* |
@@ -44,7 +44,7 @@ SelectedTask--refersTo-->         Task          (show / edit pages)
 
 - **Q-1** — Should I-2 be enforced by the database (unique open entry per task)?
   Today it is a read-then-insert in `timer.service.js`, so two fast clicks can race.
-- **Q-2** — Should marking a Task `done` stop its Timer server-side? Today the UI
-  stops the local tick only; the open TimeEntry keeps counting (TASK-011).
+- **Q-2** — Should marking a Task `done` stop its Timer server-side? *Answered: yes
+  (ADR-013).*
 - **Q-3** — SelectedTask in `localStorage` vs `?id=` in the URL. The URL version
   is bookmarkable and works per tab.

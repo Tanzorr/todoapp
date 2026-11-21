@@ -88,12 +88,11 @@ Observable statements, checkable against a running system:
 
 - **S-1** — Start → wait N s → stop → reload shows N ± 1 s.
 - **S-2** — Reload while a timer runs: the task still shows as running and keeps
-  counting. *(Fails today — TASK-011.)*
+  counting.
 - **S-3** — Every page works served as static files, with no build step.
 - **S-4** — Deleting a task leaves no orphan `time_entries` rows.
 - **S-5** — `git grep` finds no live credential in the repository. *(Fails today — TASK-013.)*
 - **S-6** — A fresh clone plus the steps in `stack.md` gives a working app.
-  *(Fails today — TASK-010.)*
 
 ## 7. Non-Goals
 
@@ -118,3 +117,4 @@ Named explicitly so scope cannot creep in through the back door:
 | Credentials committed | Database password leaks | I-9, TASK-013 |
 | No automated tests | Regressions found by hand, late | Manual checks in `testing.md`; TASK-014 |
 | Docs drift from code | Agents and learners trust wrong facts — V-4, V-5 eroded | Definition of Done requires updating specs, ontology and ADRs in the same change |
+

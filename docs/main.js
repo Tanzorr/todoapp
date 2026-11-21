@@ -1,8 +1,9 @@
 // main.js — page entry: fetch the `.ai/` files, render each section, resolve references, then
-// show the section the URL hash names.
+// show the section the URL hash names, or a whole `.ai/` file at `#file/<path>`.
 import { browse } from './browse.js';
 import { DOCS } from './config.js';
-import { el, errorNode, fileLink, markMissingRefs } from './dom.js';
+import { el, errorNode, FILE_ROUTE, fileLink, linkConcepts, resolveRefs } from './dom.js';
+import { fileView } from './file-view.js';
 import { toLines } from './md-blocks.js';
 import { RENDERERS } from './sections.js';
 
@@ -48,25 +49,38 @@ function navLink(section) {
 async function renderSection(section, body) {
     try {
         body.append(await RENDERERS[section.kind](section, load));
-        reveals.set(section.id, browse(body, { pageSize: DOCS.pageSize, label: section.title }));
+        const pageSize = section.pageSize ?? DOCS.pageSize;
+        reveals.set(section.id, browse(body, { pageSize, label: section.title }));
     } catch (err) {
         body.append(errorNode(err.message));
     }
 }
 
-// One section shows at a time. The hash names a section, or a card — then the card's section
-// shows, at the list page holding the card; either is scrolled to, as the browser would for a
-// visible element. Anything else shows the first section from the top.
-function route(nav, content) {
-    const id = window.location.hash.slice(1);
-    const target = id ? document.getElementById(id) : null;
-    const shown = target?.closest('.docs-section') ?? content.firstElementChild;
-    if (!shown) return;
+function select(nav, content, shown) {
     for (const section of content.children) section.hidden = section !== shown;
     for (const link of nav.children) {
         if (link.getAttribute('href') === `#${shown.id}`) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
     }
+}
+
+// One section shows at a time. The hash names a section, or a card — then the card's section
+// shows, at the list page holding the card; either is scrolled to, as the browser would for a
+// visible element. `#file/…` shows the file view. Anything else shows the first section from
+// the top.
+function route(nav, content, viewer) {
+    const id = window.location.hash.slice(1);
+    if (id.startsWith(FILE_ROUTE)) {
+        select(nav, content, viewer.node);
+        viewer.open(id.slice(FILE_ROUTE.length)).then((title) => {
+            if (window.location.hash.slice(1) === id) document.title = `${title} · ${TITLE}`;
+        });
+        return;
+    }
+    const target = id ? document.getElementById(id) : null;
+    const shown = target?.closest('.docs-section') ?? content.firstElementChild;
+    if (!shown) return;
+    select(nav, content, shown);
     const section = DOCS.sections.find((candidate) => candidate.id === shown.id);
     document.title = `${section.title} · ${TITLE}`;
     if (!target) {
@@ -87,11 +101,16 @@ function main() {
         content.append(node);
         return renderSection(section, body);
     });
-    const show = () => route(nav, content);
+    const ready = Promise.all(rendered).then(() => {
+        linkConcepts(content);
+        resolveRefs(content);
+    });
+    const viewer = fileView(load, ready, content);
+    content.append(viewer.node);
+    const show = () => route(nav, content, viewer);
     window.addEventListener('hashchange', show);
     show();
-    Promise.all(rendered).then(() => {
-        markMissingRefs(content);
+    ready.then(() => {
         status.textContent = `Read ${files.size} files at ${new Date().toLocaleTimeString()}.`;
         show();
     });

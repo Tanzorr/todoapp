@@ -21,6 +21,8 @@ do not literally name.
 - API failure → `try/catch` → `alert(err.message)` (ADR-005).
 - Show what the API reports; do not keep a parallel state the server also has (I-3, I-4).
 - Find a row's Task by `event.target.closest('.task-item')` and its `item-id` attribute.
+- Adding or removing a page, or changing where one leads, updates `## Site Map` in
+  [`architecture.md`](architecture.md) (ADR-012).
 
 ## Backend (`backend/src/`)
 

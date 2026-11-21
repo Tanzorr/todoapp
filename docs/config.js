@@ -1,13 +1,16 @@
 // config.js — the one map from `.ai/` files to page sections. Paths are relative to `root`;
 // `parts` name the headings a section reads, matched without their numbering. Each section is
 // its own page at `#<id>`; a list longer than `pageSize` is paged, and a section with more
-// items than that gets a search box.
+// items than that gets a search box. A section's own `pageSize` wins over the shared one.
 
 export const DOCS = {
     root: '../.ai/',
     refPattern: /\b(?:[VISQ]-\d+|TASK-\d{3}|ADR-\d{3})\b/,
     statusOrder: ['in-progress', 'blocked', 'planned', 'done'],
     pageSize: 6,
+    // A ticket file shown whole (ticket-view.js): `guide` is the heading of the table that says
+    // what each field and part tells a reader; `folded` parts start closed.
+    tickets: { file: 'backlog/INDEX.md', guide: 'Reading a Ticket', folded: ['Notes'] },
     sections: [
         {
             id: 'value',
@@ -22,6 +25,20 @@ export const DOCS = {
             kind: 'ontology',
             file: 'context/ontology.md',
             parts: { concepts: 'Concepts', invariants: 'Invariants', questions: 'Open Questions' },
+        },
+        {
+            id: 'entities',
+            title: 'Entities',
+            kind: 'entities',
+            file: 'context/ontology.md',
+            parts: {
+                concepts: 'Concepts',
+                relations: 'Relations',
+                invariants: 'Invariants',
+                questions: 'Open Questions',
+            },
+            code: { file: 'context/architecture.md', part: 'Concept → Code' },
+            pageSize: 12,
         },
         {
             id: 'backlog',
@@ -57,6 +74,13 @@ export const DOCS = {
             kind: 'architecture',
             file: 'context/architecture.md',
             parts: { layers: 'Layers', flow: 'Request Flow', adrs: 'ADRs' },
+        },
+        {
+            id: 'sitemap',
+            title: 'Site map',
+            kind: 'sitemap',
+            file: 'context/architecture.md',
+            parts: { pages: 'Site Map' },
         },
     ],
 };

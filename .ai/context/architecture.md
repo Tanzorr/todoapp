@@ -65,13 +65,26 @@ Adding a Task, end to end:
 | GET | `/api/tasks` | 200 `Task[]` |
 | GET | `/api/tasks/:id` | 200 `Task` |
 | POST | `/api/tasks` | 201 `Task` — body `{ title, description? }` |
-| PUT | `/api/tasks/:id` | 200 `Task` — body `{ title?, description?, done? }` |
+| PUT | `/api/tasks/:id` | 200 `Task` — body `{ title?, description?, done? }`; `done: true` stops the Timer (ADR-013) |
 | DELETE | `/api/tasks/:id` | 204 |
 | GET | `/api/tasks/:id/timer` | 200 `{ taskId, totalSeconds, isRunning }` |
 | POST | `/api/tasks/:id/timer/start` | 201 · 409 if running |
 | POST | `/api/tasks/:id/timer/stop` | 200 `{ …, elapsedSeconds }` · 409 if stopped |
 
 Errors: 400 invalid input, 404 missing task/route, 409 timer state, 500 otherwise.
+
+## Site Map
+
+One row per HTML page; the docs page draws it as a tree (ADR-012). `Parent` follows
+the breadcrumbs.
+
+| Page | Parent | Purpose | Goes to |
+| :--- | :--- | :--- | :--- |
+| [`index.html`](../../index.html) | — | Task list: add, start / pause, done, delete | `add.html`, `show.html`, `edit.html` |
+| [`add.html`](../../add.html) | `index.html` | New Task form | `index.html` |
+| [`show.html`](../../show.html) | `index.html` | One Task's details; needs a `SelectedTask` | `edit.html`, `index.html` |
+| [`edit.html`](../../edit.html) | `index.html` | Change a Task; needs a `SelectedTask` | `index.html` |
+| [`docs/index.html`](../../docs/index.html) | — | Renders `.ai/` | — |
 
 ## ADRs
 
@@ -135,3 +148,42 @@ is shown; `#<id>` picks it. Rejected: one `.html` per section — each would fet
 every file again to resolve references to other sections' cards, and
 `markMissingRefs` could not see them. Cost: the first view waits for all files;
 search and list page reset on reload.
+
+### ADR-012 — Site map is a table in `architecture.md`, not read out of `src/`
+**2026-11-03 · Accepted** (TASK-019). Each page's parent, purpose and moves are a
+row in `## Site Map`; the `#sitemap` section loads each page file to check it.
+Rejected: reading links out of `src/` and the HTML — the moves are
+`window.location.href` calls behind conditions (`src/action-button.js`), so it
+would take a JavaScript parser, and code does not state a page's purpose. Cost:
+a removed page is flagged, an added page with no row is not; `Goes to` can drift
+from the code unnoticed. Only the rule in [`conventions.md`](conventions.md)
+covers either.
+
+### ADR-013 — Marking a Task done stops its Timer on the server
+**2026-11-05 · Accepted** (TASK-011), answers Q-2. `PUT` with `done: true` closes
+an open TimeEntry before setting the flag, so tracked time stops when the work
+does. Rejected: keeping the Timer running — a done Task would go on counting, and
+hiding Start on it (TASK-020) would leave no way to stop it. Cost: `tasks.service`
+imports `timer.repository`; reopening does not resume the Timer; closing and
+updating are two statements, so a failure between them leaves a stopped Timer on
+a Task that is not done, which a retry fixes.
+
+### ADR-014 — Entity cards are assembled from existing files and linked by name
+**2026-11-07 · Accepted** (TASK-022). `#entities` builds one card per concept from
+`ontology.md` (Concepts, Relations, Invariants, Open Questions) and `## Concept → Code`
+above; a rule belongs to a card when it names the concept as a whole word. After
+render, any `code` or bold span whose text is a concept name links to its card.
+Rejected: an `entities.md` per concept — a second copy of the ontology to keep in
+step; a list of names in `docs/config.js` — the same, for the names. Cost: the
+`Relations` block becomes a contract (`A --verb--> B (note)`); a rule naming a concept
+only in lowercase prose is not listed; a `code` span that equals a concept name by
+chance is linked.
+
+### ADR-015 — `.ai/` files open rendered in the docs page, at `#file/<path>`
+**2026-11-07 · Accepted** (TASK-023). A link to a `.md` under `.ai/` opens a view
+of that file on the docs page, with the markdown reader every section uses;
+`#file/<path>#<heading>` scrolls to a heading. Rejected: a second page,
+`file.html?path=` — refs and concept names in the file would link to cards it does
+not have (ADR-011's reason again); a markdown library — a dependency (ADR-003).
+Cost: a raw `.md` opened by its own URL stays unstyled; only the view's source link
+reaches the raw text; a file loads once per page load, so an edit needs a reload.
