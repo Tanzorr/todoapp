@@ -13,12 +13,12 @@ Configures and exports the Express application instance. Sets up middleware (COR
 - **CORS:** In development (`NODE_ENV === 'development'`), allows all origins for GET, POST, PUT, DELETE with `Content-Type` and `Authorization` headers. Credentials (the refresh cookie) are not allowed cross-origin yet — the frontend sign-in ticket decides that. Responds to preflight (`OPTIONS`) with `204 No Content`. In production, no CORS middleware is installed.
 - **Body parsing:** All requests are parsed as JSON via `express.json()`.
 - **Health endpoint (`GET /health`):** Returns `{ status: 'ok', timestamp: '<ISO8601>' }` with `200 OK`. Useful for load balancers and monitoring.
-- **API routes:** Auth API at `/api/auth` (register, login, refresh, logout, me); Tasks API at `/api/tasks` (includes nested timer routes).
+- **API routes:** Auth API at `/api/auth` (register, login, refresh, logout, me); Tasks API at `/api/tasks` (includes nested timer routes) behind `authenticate`, so every Task and Timer route answers `401` without a valid access token.
 - **Error handling order:** Global 404 handler comes before the error handler. The error handler is Express's standard 4-argument signature `(err, req, res, next)` to catch `throw` and `next(err)` from route handlers.
 
 ## Dependencies
 
-- **Imports:** `express`, `./middleware/not-found`, `./middleware/error-handler`, `./config/env`, `./modules/auth/auth.routes`, `./modules/tasks/tasks.routes`
+- **Imports:** `express`, `./middleware/not-found`, `./middleware/error-handler`, `./middleware/authenticate`, `./config/env`, `./modules/auth/auth.routes`, `./modules/tasks/tasks.routes`
 - **Depends on:** `server.js` (which requires and listens on it)
 
 ## Notes

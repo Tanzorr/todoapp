@@ -30,7 +30,7 @@ All routes assume a base path of `/api/tasks`.
 ## Dependencies
 
 - **Imports:** `express`, `./tasks.controller`, `../timer/timer.routes`
-- **Depends on:** Mounted in `app.js` at `/api/tasks`.
+- **Depends on:** Mounted in `app.js` at `/api/tasks`, behind `authenticate` — every route here, timer routes included, needs a valid access token.
 
 ## Notes
 

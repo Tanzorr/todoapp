@@ -19,4 +19,4 @@ Lets a request through only with a valid access token, and records whose request
 ## Dependencies
 
 - **Imports:** `../modules/auth/auth.tokens`
-- **Called by:** `auth.routes.js` (`/me`)
+- **Called by:** `auth.routes.js` (`/me`), `app.js` (in front of `/api/tasks`)

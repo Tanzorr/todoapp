@@ -1,14 +1,17 @@
 'use strict';
 
+const { z } = require('zod');
+const { validate } = require('../../lib/validate');
+
+const INVALID_ID = 'Invalid task id';
+
+const taskIdSchema = z.preprocess(
+    (value) => parseInt(value, 10),
+    z.number({ error: INVALID_ID }).int({ error: INVALID_ID }).positive({ error: INVALID_ID })
+);
+
 function validateTaskId(id) {
-    const parsed = parseInt(id, 10);
-    if (!Number.isInteger(parsed) || parsed <= 0) {
-        const err = new Error('Invalid task id');
-        err.status = 400;
-        throw err;
-    }
-    return parsed;
+    return validate(taskIdSchema, id);
 }
 
 module.exports = { validateTaskId };
-

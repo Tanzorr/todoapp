@@ -34,9 +34,10 @@ HTTP request handlers (route controllers) for the tasks API. Parses request data
 
 ## Behavior / business rules
 
+- **Owner:** every handler passes `req.user.id` (set by `authenticate`) to the service, which scopes the work to that User (I-11). Without a valid access token the request never reaches here — `401`.
 - **Error handling:** Every handler wraps its async work in try-catch and calls `next(err)` on exception. This routes errors to the global error handler middleware.
 - **Validation:** ID validation happens in the controller before calling the service.
-- **Status codes:** 201 for create, 200 for success, 204 for successful delete (no content), 400 for validation, 404 for not found.
+- **Status codes:** 201 for create, 200 for success, 204 for successful delete (no content), 400 for validation, 404 for not found — including another User's Task.
 
 ## Dependencies
 
