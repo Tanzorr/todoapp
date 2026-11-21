@@ -1,7 +1,8 @@
 # Testing
 
-There is **no automated test suite yet** (TASK-014). Until there is, a claim
-that something works means one of the checks below was run and its output read.
+A claim that something works means one of the checks below was run and its
+output read. Only auth and access control are automated so far; the Task and
+Timer API checks are TASK-014.
 
 ## Static checks
 
@@ -10,10 +11,30 @@ npm run check                                    # frontend lint + format
 for f in $(git ls-files 'backend/src/*.js'); do node --check "$f"; done
 ```
 
+## Automated: `cd backend && npm test`
+
+`node:test` + global `fetch`, no extra dependency. Each `test/*.test.js` runs in its
+own process, one at a time, against an in-process app on a random port.
+
+| File | Covers |
+| :--- | :--- |
+| `test/auth.test.js` | TASK-025 AC-2…AC-8, AC-12 — register, login, refresh rotation and reuse, logout, `/me` |
+| `test/access-control.test.js` | AC-9 (every `/api/tasks` route → `401`), AC-10 (another User's Task → `404`, unchanged) — I-11 |
+| `test/rate-limit.test.js` | AC-11 — 6th register/login per minute → `429` |
+
+- `test/helpers.js` forces `DB_NAME=todo_app_test`, refuses any database not ending in
+  `_test`, migrates it up, and generates throwaway JWT secrets — `backend/.env`
+  supplies only the MySQL connection. The database must exist.
+- Every User a test registers is deleted afterwards, which cascades to its Tasks,
+  TimeEntries and RefreshTokens.
+- Exits non-zero on any failure.
+
 ## Required Checks
 
 Run against a migrated database with the API and static server up
-([`stack.md`](stack.md)). `$T` is a task id from step T-1.
+([`stack.md`](stack.md)). `$T` is a task id from step T-1. Every `/api/tasks` call
+needs `-H "Authorization: Bearer $TOKEN"`, where `$TOKEN` is the `accessToken` from
+`POST /api/auth/login` (it lasts 15 minutes); without it the answer is `401`.
 
 | # | Check | How | Proves |
 | :--- | :--- | :--- | :--- |
