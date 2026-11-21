@@ -16,6 +16,7 @@ const DB_NAME = process.env.DB_NAME || 'todo_app';
 const JWT_SECRET = process.env.JWT_SECRET || '';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || '';
 const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || '12', 10);
+const AUTH_RATE_LIMIT = parseInt(process.env.AUTH_RATE_LIMIT || '5', 10);
 
 function assertAuthConfig() {
     for (const [name, value] of [
@@ -32,6 +33,9 @@ function assertAuthConfig() {
     if (!Number.isInteger(BCRYPT_ROUNDS) || BCRYPT_ROUNDS < 4 || BCRYPT_ROUNDS > 31) {
         throw new Error('[config] BCRYPT_ROUNDS must be an integer from 4 to 31');
     }
+    if (!Number.isInteger(AUTH_RATE_LIMIT) || AUTH_RATE_LIMIT < 1) {
+        throw new Error('[config] AUTH_RATE_LIMIT must be a positive integer');
+    }
 }
 
 assertAuthConfig();
@@ -47,4 +51,5 @@ module.exports = {
     JWT_SECRET,
     JWT_REFRESH_SECRET,
     BCRYPT_ROUNDS,
+    AUTH_RATE_LIMIT,
 };

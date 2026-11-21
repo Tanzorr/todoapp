@@ -26,6 +26,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
+app.use('/api/auth', require('./modules/auth/auth.routes'));
 app.use('/api/tasks', require('./modules/tasks/tasks.routes'));
 
 // 404 and error handlers must be last
