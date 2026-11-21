@@ -16,7 +16,9 @@ function updateListSummary() {
     runningCount.hidden = running === 0;
     runningLabel.textContent = `${running} running`;
     listTotal.hidden = rows.length === 0;
-    listTotalValue.textContent = formatTime(rows.reduce((sum, row) => sum + row.timer.seconds(), 0));
+    listTotalValue.textContent = formatTime(
+        rows.reduce((sum, row) => sum + row.timer.seconds(), 0)
+    );
 }
 
 document.addEventListener(TASKS_CHANGED, updateListSummary);

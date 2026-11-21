@@ -113,7 +113,11 @@ export function createTaskItem(task, totalSeconds, isRunning) {
     main.append(doneToggle, createTaskLink(task.id, task.title, 'show.html', ['task-title']));
 
     taskItem.errorSlot = createElement('div', ['error-slot']);
-    taskItem.append(main, createControls(taskItem, task, totalSeconds, isRunning), taskItem.errorSlot);
+    taskItem.append(
+        main,
+        createControls(taskItem, task, totalSeconds, isRunning),
+        taskItem.errorSlot
+    );
     return taskItem;
 }
 
