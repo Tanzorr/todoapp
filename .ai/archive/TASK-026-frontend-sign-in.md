@@ -2,7 +2,7 @@
 
 | Field | Value |
 | :--- | :--- |
-| **Status** | `in-progress` — built and verified; not committed yet |
+| **Status** | `done` |
 | **Priority** | P1 |
 | **Value driver** | V-6, V-3 |
 | **Depends on** | TASK-025 |
@@ -49,7 +49,7 @@ Password reset, email verification, "remember me" choices.
 
 ## Outcome
 
-**Completed:** 2026-11-21 (archived once committed)
+**Completed:** 2026-11-21 (`81dd7c6`)
 **What was built:** `login.html` + `src/login.js` + `src/auth-form.js` — one form that
 switches between Sign in and Create an account; a `400` lands under its field, anything
 else (`401`, `409`, `429`) above the buttons; `?next=` returns to the page that sent you,
