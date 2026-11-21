@@ -19,6 +19,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
 | [TASK-023](TASK-023-docs-file-view.md) | Docs: open any `.ai/` markdown file rendered | `in-progress` | P2 | V-4 | TASK-018 |
 | [TASK-024](TASK-024-tickets-for-readers.md) | A ticket reads clearly to someone who has never seen one | `in-progress` | P2 | V-4 | TASK-023 |
 | [TASK-025](TASK-025-users-and-auth.md) | Users: registration, sign-in and private Tasks | `in-progress` | P1 | V-6 | — |
+| [TASK-026](TASK-026-frontend-sign-in.md) | Sign-in page and tokens in the frontend | `planned` | P1 | V-6, V-3 | TASK-025 |
 
 ## Order
 
@@ -29,7 +30,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
      │        └─► 016
      └─► 014
 013  (independent, do first)
-025  (independent; its test harness is reusable by 014)
+025 ───► 026   (025's test harness is reusable by 014)
 017 ───► 018 ─┬─► 019
               ├─► 022
               └─► 023 ───► 024

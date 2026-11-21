@@ -55,31 +55,31 @@ Run against `todo_app_test` unless stated; `$A`, `$B` are two registered users.
 - [ ] AC-1 — On the dev database with existing Tasks, `npm run migrate` applies 002–004
       and every existing Task belongs to the seed user. On `todo_app_test`, migrating
       down to 001 and back up again succeeds.
-- [ ] AC-2 — `POST /api/auth/register` → `201` with the user, no `password_hash`; email
+- [x] AC-2 — `POST /api/auth/register` → `201` with the user, no `password_hash`; email
       is trimmed and lowercased. Same email in any case → `409`. Bad email, or password
       under 8 chars → `400` with `field`.
-- [ ] AC-3 — The stored `password_hash` is a bcrypt hash with the cost from
+- [x] AC-3 — The stored `password_hash` is a bcrypt hash with the cost from
       `BCRYPT_ROUNDS` (default 12).
-- [ ] AC-4 — `POST /api/auth/login` → `200 { accessToken, user }` and a refresh cookie that is
+- [x] AC-4 — `POST /api/auth/login` → `200 { accessToken, user }` and a refresh cookie that is
       `HttpOnly; Secure; SameSite=Strict`, lasts 7 days and is scoped to `Path=/api/auth`.
       Wrong password and unknown email return the same `401` body.
-- [ ] AC-5 — The access token's `exp − iat` is 900 s.
-- [ ] AC-6 — `POST /api/auth/refresh` → new access token and new cookie; the old row has
+- [x] AC-5 — The access token's `exp − iat` is 900 s.
+- [x] AC-6 — `POST /api/auth/refresh` → new access token and new cookie; the old row has
       `revoked_at` set. Sending the old token again → `401`, and all of that user's
       tokens are revoked.
-- [ ] AC-7 — `POST /api/auth/logout` revokes the token and clears the cookie; refreshing
+- [x] AC-7 — `POST /api/auth/logout` revokes the token and clears the cookie; refreshing
       with it afterwards → `401`.
-- [ ] AC-8 — `GET /api/auth/me` → `200` with the user, no `password_hash`; missing,
+- [x] AC-8 — `GET /api/auth/me` → `200` with the user, no `password_hash`; missing,
       malformed or expired token → `401`.
-- [ ] AC-9 — Every `/api/tasks` route without a valid token → `401`.
-- [ ] AC-10 — `$B` reading, updating or deleting `$A`'s Task, or reading, starting or
+- [x] AC-9 — Every `/api/tasks` route without a valid token → `401`.
+- [x] AC-10 — `$B` reading, updating or deleting `$A`'s Task, or reading, starting or
       stopping its Timer, gets `404`; `$A`'s Task and TimeEntries are unchanged.
-- [ ] AC-11 — The 6th login or register from one IP within a minute → `429`.
-- [ ] AC-12 — Every error response has the shape chosen in D3, including `401`, `404`
+- [x] AC-11 — The 6th login or register from one IP within a minute → `429`.
+- [x] AC-12 — Every error response has the shape chosen in D3, including `401`, `404`
       for unknown routes and `429`.
-- [ ] AC-13 — The server refuses to start if `JWT_SECRET` or `JWT_REFRESH_SECRET` is
+- [x] AC-13 — The server refuses to start if `JWT_SECRET` or `JWT_REFRESH_SECRET` is
       missing, under 32 chars, or the two are equal.
-- [ ] AC-14 — `cd backend && npm test` covers AC-2, AC-4, AC-6, AC-7, AC-10 (the request's
+- [x] AC-14 — `cd backend && npm test` covers AC-2, AC-4, AC-6, AC-7, AC-10 (the request's
       test list), exits non-zero on a failure, and leaves no users behind.
 - [ ] AC-15 — T-1…T-8 from [`testing.md`](../context/testing.md) still pass with a token.
 - [ ] AC-16 — `backend/README.md` documents setup and the auth endpoints;
@@ -93,6 +93,15 @@ Run against `todo_app_test` unless stated; `$A`, `$B` are two registered users.
 - HTTPS and deployment — non-goal in `VALUE.md`.
 
 ## Notes
+
+**Left before close-out** (2026-11-21) — steps 0–8 are committed on `feature/auth`;
+`npm test` passes 25/25.
+
+| AC | Done | Missing | Blocked by |
+| :--- | :--- | :--- | :--- |
+| AC-1 | `todo_app_test`: 001→004, down to 001, up again; a pre-004 Task went to the seed user | `npm run migrate` on `todo_app` | `backend/.env` fails the secret check, so nothing starts |
+| AC-15 | T-1…T-8 with a token, in-process app on `todo_app_test`: all as expected | the same against `npm start` on `todo_app` | as above |
+| AC-16 | `backend/README.md` | `backend/.env.example` lines for `JWT_SECRET`, `JWT_REFRESH_SECRET`, `BCRYPT_ROUNDS=12`, `AUTH_RATE_LIMIT=5` | the agent's permissions deny reading or appending to it |
 
 **Steps** — branch `feature/auth`, one commit per step, body `Ticket: TASK-025`.
 

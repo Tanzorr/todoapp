@@ -9,7 +9,11 @@
 | Express | 4.x | HTTP routing |
 | mysql2 | 3.x (`mysql2/promise`) | Pool + parameterised queries. No ORM |
 | dotenv | 16.x | Loads `backend/.env` |
-| MySQL | 8 | `tasks`, `time_entries` |
+| bcryptjs | 3.x | Password hashes (ADR-016) |
+| jsonwebtoken | 9.x | Access and refresh JWTs, HS256 |
+| zod | 4.x | Every input validator, via `lib/validate.js` |
+| express-rate-limit | 8.x | Register / login limit, in memory |
+| MySQL | 8 | `users`, `refresh_tokens`, `tasks`, `time_entries`, `schema_migrations` |
 | ESLint / Prettier | 9 / 3 (root devDeps) | Frontend lint + format. Backend is **not** linted yet |
 
 Two separate `package.json` files: root = frontend tooling only; `backend/` =
@@ -36,7 +40,10 @@ Names and meaning only — values come from `backend/.env.example`.
 | `NODE_ENV` | `development` | Enables dev CORS |
 | `DB_HOST` / `DB_PORT` | `localhost` / `3306` | MySQL |
 | `DB_USER` / `DB_PASSWORD` | `root` / empty | MySQL credentials |
-| `DB_NAME` | `todo_app` | Database, must exist before `migrate` |
+| `DB_NAME` | `todo_app` | Database, must exist before `migrate`. Tests always use `todo_app_test` |
+| `JWT_SECRET` / `JWT_REFRESH_SECRET` | none — required | ≥ 32 chars each, different; the server refuses to start otherwise |
+| `BCRYPT_ROUNDS` | `12` | bcrypt cost, 4–31 |
+| `AUTH_RATE_LIMIT` | `5` | Register + login requests per IP per minute |
 
 Read only through `backend/src/config/env.js`.
 
@@ -49,6 +56,7 @@ npm run format                # root: prettier --write (reformats files)
 cd backend && npm run migrate       # applies pending migrations, in order
 cd backend && npm run migrate:down  # undoes the last one; only on a *_test DB without -- --force
 cd backend && npm start
+cd backend && npm test              # node:test against todo_app_test
 curl -s localhost:3000/health
 ```
 

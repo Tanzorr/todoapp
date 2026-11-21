@@ -20,12 +20,16 @@ Node / Express  (backend/src)
   routes  →  controller  →  service  →  repository  →  db/pool.js  →  MySQL
               parse req      rules +      SQL only
               send res       validation   (I-10)
-  middleware/  not-found, error-handler → ApiError (I-7)
+  middleware/  authenticate (Bearer → req.user), rate-limit,
+               not-found, error-handler → ApiError (I-7)
+  modules/     auth · users · tasks · timer — every tasks/timer query takes userId (I-11)
         │  SQL with ? placeholders (mysql2 pool)
         ▼
-MySQL 8  (backend/src/db/migrations/001_init.sql)
-  tasks          id · title VARCHAR(200) · description NULL · done · created_at · updated_at
-  time_entries   id · task_id → tasks.id ON DELETE CASCADE · started_at · stopped_at NULL = open
+MySQL 8  (backend/src/db/migrations/, tracked in schema_migrations — ADR-017)
+  users           id · email UNIQUE · password_hash · created_at · updated_at
+  refresh_tokens  id · user_id → users.id CASCADE · token_hash UNIQUE · expires_at · revoked_at NULL
+  tasks           id · user_id → users.id CASCADE · title VARCHAR(200) · description NULL · done · …
+  time_entries    id · task_id → tasks.id ON DELETE CASCADE · started_at · stopped_at NULL = open
 ```
 
 **Dependencies point down only.** A repository never throws HTTP-shaped errors
@@ -38,10 +42,11 @@ Adding a Task, end to end:
 
 1. `add.html` submit → `src/add.js` → `createTask()` in `src/api-client.js` →
    `POST /api/tasks` with `{ title, description }`.
-2. `tasks.routes.js` → `tasks.controller.js` reads the body → `tasks.service.js`
+2. `authenticate` checks the Bearer token and sets `req.user` (no token → `401`) →
+   `tasks.routes.js` → `tasks.controller.js` reads the body → `tasks.service.js`
    validates the title (I-6) → `tasks.repository.js`.
-3. MySQL runs `INSERT INTO tasks (title, description) VALUES (?, ?)` (I-10) and
-   returns the new `id`.
+3. MySQL runs `INSERT INTO tasks (user_id, title, description) VALUES (?, ?, ?)`
+   (I-10, I-11) and returns the new `id`.
 4. The controller answers `201` with the `Task`; `add.js` redirects to
    `index.html`, where `src/render.js` fetches the list and draws a TaskItem per Task.
 
@@ -55,14 +60,21 @@ Adding a Task, end to end:
 | `TrackedTime` | `timer.repository.getTotalSeconds()` (SQL `SUM(TIMESTAMPDIFF…)`) |
 | `TaskItem` | `render.addTodo()` + `dom-elements.createControls()`; `.stopTimer` property on the node |
 | `SelectedTask` | `src/data.js` (`saveTaskId` / `getTaskId`) |
-| `ApiError` | `backend/src/middleware/error-handler.js`; thrown as `Error` with `.status`, `.field` |
+| `ApiError` | `backend/src/middleware/error-handler.js`; thrown as `Error` with `.status`, `.field`; `code` derived from the status |
+| `User` | `users` table · `backend/src/modules/users/users.repository.js` · `req.user` set by `middleware/authenticate.js` |
+| `RefreshToken` | `refresh_tokens` table · `backend/src/modules/auth/` (`auth.tokens.js` signs, `auth.repository.js` stores the hash, `auth.cookies.js` carries it) |
 
 ## API Surface
 
 | Method | Path | Success |
 | :--- | :--- | :--- |
 | GET | `/health` | 200 |
-| GET | `/api/tasks` | 200 `Task[]` |
+| POST | `/api/auth/register` | 201 `User` — body `{ email, password }` · 409 if taken · 429 after 5/min |
+| POST | `/api/auth/login` | 200 `{ accessToken, user }` + `refreshToken` cookie · 401 · 429 after 5/min |
+| POST | `/api/auth/refresh` | 200 `{ accessToken, user }` + new cookie · 401 |
+| POST | `/api/auth/logout` | 204, cookie cleared |
+| GET | `/api/auth/me` | 200 `User` (Bearer) |
+| GET | `/api/tasks` | 200 `Task[]` — the caller's only |
 | GET | `/api/tasks/:id` | 200 `Task` |
 | POST | `/api/tasks` | 201 `Task` — body `{ title, description? }` |
 | PUT | `/api/tasks/:id` | 200 `Task` — body `{ title?, description?, done? }`; `done: true` stops the Timer (ADR-013) |
@@ -71,7 +83,9 @@ Adding a Task, end to end:
 | POST | `/api/tasks/:id/timer/start` | 201 · 409 if running |
 | POST | `/api/tasks/:id/timer/stop` | 200 `{ …, elapsedSeconds }` · 409 if stopped |
 
-Errors: 400 invalid input, 404 missing task/route, 409 timer state, 500 otherwise.
+Every `/api/tasks` route needs `Authorization: Bearer <accessToken>` (ADR-016).
+Errors: 400 invalid input, 401 no or bad token, 404 missing task/route or another
+User's Task (I-11), 409 timer state or email taken, 429 rate limit, 500 otherwise.
 
 ## Site Map
 
