@@ -13,7 +13,9 @@ The domain model. Says what exists and how it relates; where it lives in code is
 | **TrackedTime** | no — derived | Total seconds across a Task's TimeEntries, open one counted up to now. |
 | **TaskItem** | no — DOM | The row representing one Task on the list page, carrying its local ticking display. |
 | **SelectedTask** | `localStorage.taskId` | Which Task the show/edit page is about. Navigation state only. |
-| **ApiError** | no — wire | `{ error: { status, message, field? } }` — every non-2xx API response. |
+| **ApiError** | no — wire | `{ error: { status, code, message, field? } }` — every non-2xx API response. `code` is the status name, e.g. `NOT_FOUND`. |
+| **User** | `users` table | A person who signs in with an email and password and owns Tasks. |
+| **RefreshToken** | `refresh_tokens` table | A 7-day credential, kept by the browser as an httpOnly cookie, that buys a new 15-minute access token. |
 
 ## 2. Relations
 
@@ -23,13 +25,15 @@ Task        --hasTimer-->         Timer         (derived from open TimeEntry)
 Task        --hasTrackedTime-->   TrackedTime   (derived: SUM over TimeEntry)
 TaskItem    --represents-->       Task          (list page only)
 SelectedTask--refersTo-->         Task          (show / edit pages)
+User        --owns-->             Task          (1 : n, cascade on delete)
+User        --hasRefreshToken-->  RefreshToken  (1 : n, cascade on delete)
 ```
 
 ## 3. Invariants
 
 | # | Invariant |
 | :--- | :--- |
-| **I-1** | MySQL is the only store of Tasks and TimeEntries. The browser persists nothing but SelectedTask. |
+| **I-1** | MySQL is the only store of Users, Tasks and TimeEntries. The browser persists nothing but SelectedTask and the httpOnly RefreshToken cookie. |
 | **I-2** | A Task has at most one open TimeEntry. Starting a running Timer is `409`; stopping a stopped one is `409`. |
 | **I-3** | Timer state is derived from TimeEntry rows — never a column on `tasks`, never trusted from the browser. The UI shows what the API reports. |
 | **I-4** | TrackedTime is computed by the server. The browser's per-second tick is display only and is replaced by the server total on stop and on load. |
@@ -37,8 +41,11 @@ SelectedTask--refersTo-->         Task          (show / edit pages)
 | **I-6** | A Task title is 1–200 chars after trim, on the add page, the edit page and the server alike. The server check is authoritative; the client check is a courtesy. |
 | **I-7** | Every API error is an ApiError. Every browser→API call goes through `src/api-client.js`. |
 | **I-8** | User text (`title`, `description`) reaches the DOM via `textContent` only, never `innerHTML`. |
-| **I-9** | Credentials live in `backend/.env`, which is never committed and never read by the agent. *Currently violated — TASK-013.* |
+| **I-9** | Credentials and JWT secrets live in `backend/.env`, which is never committed and never read by the agent. *Currently violated — TASK-013.* |
 | **I-10** | SQL lives only in `*.repository.js` and always uses `?` placeholders — no string-built values. |
+| **I-11** | Every Task has exactly one owning User. Every Task and TimeEntry query is scoped to the requesting User; another User's Task answers `404`, never `403`. |
+| **I-12** | `password_hash` never leaves `users.repository.js` except to the sign-in check, and is never in a response. |
+| **I-13** | A RefreshToken is stored only as a SHA-256 hash and works once: using it revokes it. Using a revoked one revokes all of that User's RefreshTokens. |
 
 ## 4. Open Questions
 

@@ -18,7 +18,7 @@ New tickets follow [`TEMPLATE.md`](TEMPLATE.md).
 | [TASK-022](TASK-022-docs-entities-page.md) | Entities page on the docs site | `in-progress` | P2 | V-4 | TASK-018 |
 | [TASK-023](TASK-023-docs-file-view.md) | Docs: open any `.ai/` markdown file rendered | `in-progress` | P2 | V-4 | TASK-018 |
 | [TASK-024](TASK-024-tickets-for-readers.md) | A ticket reads clearly to someone who has never seen one | `in-progress` | P2 | V-4 | TASK-023 |
-| [TASK-025](TASK-025-users-and-auth.md) | Users: registration, sign-in and private Tasks | `planned` | P1 | — (new V-6) | — |
+| [TASK-025](TASK-025-users-and-auth.md) | Users: registration, sign-in and private Tasks | `in-progress` | P1 | V-6 | — |
 
 ## Order
 

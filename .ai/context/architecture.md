@@ -187,3 +187,31 @@ of that file on the docs page, with the markdown reader every section uses;
 not have (ADR-011's reason again); a markdown library — a dependency (ADR-003).
 Cost: a raw `.md` opened by its own URL stays unstyled; only the view's source link
 reaches the raw text; a file loads once per page load, so an edit needs a reload.
+
+### ADR-016 — Accounts: bcrypt passwords, short access JWTs, rotating refresh tokens
+**2026-11-21 · Accepted** (TASK-025). Passwords are bcrypt hashes (`BCRYPT_ROUNDS`,
+default 12). Sign-in returns a 15-minute access JWT, sent as `Authorization: Bearer`,
+and sets a 7-day refresh JWT as an `HttpOnly; Secure; SameSite=Strict` cookie scoped
+to `/api/auth`. The database keeps only the refresh token's SHA-256; each refresh
+revokes it and issues a new one, and reusing a revoked one revokes all of that
+User's tokens (I-13). New dependencies: `bcryptjs`, `jsonwebtoken`, `zod` (all input
+validation), `express-rate-limit` (5 sign-ins or registrations per IP per minute).
+Rejected: a server session cookie on every route — every write would need CSRF
+protection, plus `express-session`; one long-lived JWT — sign-out could not end it on
+the server; tokens in `localStorage` — readable by any script on the page. Cost: two
+secrets to manage; an access token stays valid up to 15 minutes after sign-out; four
+dependencies; rate-limit counts live in memory and reset on restart.
+
+### ADR-017 — Migrations run once, tracked in `schema_migrations`, with `.down.sql`
+**2026-11-21 · Accepted** (TASK-025). `npm run migrate` applies only files not yet in
+`schema_migrations`; `npm run migrate:down` runs the last one's `NNN_<what>.down.sql`.
+Rejected: re-running every file — MySQL 8 has no `ADD COLUMN IF NOT EXISTS`, so 004
+cannot be idempotent; a migration library (`knex`, `umzug`) — a dependency for ~60
+lines. Cost: MySQL cannot roll back DDL, so a file that fails halfway leaves part of
+it applied and unrecorded; down files are hand-written and can drift from the up file.
+
+### ADR-018 — A Task's owner is stored on `tasks` only
+**2026-11-21 · Accepted** (TASK-025). `tasks.user_id`; TimeEntry queries join `tasks`
+and filter `user_id = ?`, so a Timer's owner is its Task's. Rejected:
+`time_entries.user_id` as well — the owner stored twice can drift. Cost: every
+timer query carries a join.

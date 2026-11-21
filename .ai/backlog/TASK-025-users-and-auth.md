@@ -2,9 +2,9 @@
 
 | Field | Value |
 | :--- | :--- |
-| **Status** | `planned` — waiting for the owner to confirm the Decisions and the dependencies |
+| **Status** | `in-progress` |
 | **Priority** | P1 |
-| **Value driver** | none yet — [`VALUE.md`](../business/VALUE.md) §7 lists multi-user as a non-goal; this ticket replaces that line with a new driver, V-6 *Private records* |
+| **Value driver** | V-6 *Private records* — added to [`VALUE.md`](../business/VALUE.md) by this ticket, replacing the multi-user non-goal |
 | **Depends on** | — |
 | **Created** | 2026-11-21 |
 
@@ -31,7 +31,8 @@ three new invariants:
 
 ## Decisions
 
-The owner confirms or changes each before building starts.
+The owner confirms or changes each before building starts. **Confirmed 2026-11-21:
+every Decision as proposed, and the four dependencies below.**
 
 | # | Question | Proposed | Alternative |
 | :--- | :--- | :--- | :--- |

@@ -5,7 +5,7 @@ read all of them every time.
 
 | Module | Read it when | Answers |
 | :--- | :--- | :--- |
-| [`ontology.md`](ontology.md) | Planning, modelling, changing what something means | Concepts, relations, I-1…I-10, open questions |
+| [`ontology.md`](ontology.md) | Planning, modelling, changing what something means | Concepts, relations, I-1…I-13, open questions |
 | [`stack.md`](stack.md) | Before running or wiring anything | Versions, ports, env keys, commands |
 | [`architecture.md`](architecture.md) | Before adding a file or choosing where code goes | Layers, concept→code map, site map, ADRs |
 | [`conventions.md`](conventions.md) | Every time you write code | Naming, DOs/DON'Ts, commits, Definition of Done |
